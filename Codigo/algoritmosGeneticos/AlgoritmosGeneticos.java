@@ -1,44 +1,44 @@
 package algoritmosGeneticos;
 import java.util.*;
 
-//A classe AlgoritmosGeneticos implementar· a lÛgica geral dos algoritmos genÈticos
-//Ser· utilizada como superclasse para especializaÁ„o dos problemas
+//A classe AlgoritmosGeneticos implementar√° a l√≥gica geral dos algoritmos gen√©ticos
+//Ser√° utilizada como superclasse para especializa√ß√£o dos problemas
 public abstract class AlgoritmosGeneticos {
 
-	/*-----------------| EspaÁo dos Atributos |-----------------*/
+	/*-----------------| Espa√ßo dos Atributos |-----------------*/
 	
-	//geracao -> Lista de elementos da geraÁ„o atual da populaÁ„o
-	//Cada elemento dever· mapear o valor x e o valor y do ponto em bin·rio
-	//Cada funÁ„o fitness ter· seu prÛprio modelo de indivÌduo, portanto eles ser„o mapeados nas classes filhas
+	//geracao -> Lista de elementos da gera√ß√£o atual da popula√ß√£o
+	//Cada elemento dever√° mapear o valor x e o valor y do ponto em bin√°rio
+	//Cada fun√ß√£o fitness ter√° seu pr√≥prio modelo de indiv√≠duo, portanto eles ser√£o mapeados nas classes filhas
 	List<int[]> geracao;
 	
-	//indGeracao -> Indicador da geraÁ„o em que a populaÁ„o est·
+	//indGeracao -> Indicador da gera√ß√£o em que a popula√ß√£o est√°
 	int indGeracao;
 	
-	//rand -> operador aleatÛrio
+	//rand -> operador aleat√≥rio
 	Random rand;
 	
-	/*-----------------| EspaÁo dos MÈtodos |-----------------*/	
+	/*-----------------| Espa√ßo dos M√©todos |-----------------*/	
 	
-	//Construtor -> Por enquanto sÛ inicializa rand
+	//Construtor -> Por enquanto s√≥ inicializa rand
 	protected AlgoritmosGeneticos()
 	{
 		this.rand = new Random();
 	}
 	
-	//geradorInicial -> Cria a primeira geraÁ„o - Supıe que o alfabeto È {0,1}
-	//Recebe como par‚metro o n˙mero de indivÌduos que ser„o criados na geraÁ„o
+	//geradorInicial -> Cria a primeira gera√ß√£o - Sup√µe que o alfabeto √© {0,1}
+	//Recebe como par√¢metro o n√∫mero de indiv√≠duos que ser√£o criados na gera√ß√£o
 	void geradorInicial(int n)
 	{
-		//LaÁo que cria todos os indivÌduos
+		//La√ßo que cria todos os indiv√≠duos
 		for(int i = 0; i < n; i++)
-			//Iterar por cada gene do cromossomo dando um valor aleatÛrio
+			//Iterar por cada gene do cromossomo dando um valor aleat√≥rio
 			for(int j = 0; j < this.geracao.get(i).length; j++)
 				this.geracao.get(i)[j] = rand.nextInt(2);
 	}
 	
-	//imprimeGeracao -> imprime os elementos da geraÁ„o atual
-	//Depois podemos definir algo para separar mantissa e expoente na representaÁ„o decimal.
+	//imprimeGeracao -> imprime os elementos da gera√ß√£o atual
+	//Depois podemos definir algo para separar mantissa e expoente na representa√ß√£o decimal.
 	void imprimeGeracao()
 	{
 		Iterator<int[]> i;
@@ -52,9 +52,9 @@ public abstract class AlgoritmosGeneticos {
 		{
 			temp = i.next();
 			
-			System.out.print("IndivÌduo " + i + ": ");
+			System.out.print("Indiv√≠duo " + i + ": ");
 			
-			//Imprimir o indivÌduo
+			//Imprimir o indiv√≠duo
 			for(j = 0; j < temp.length; j++)
 				System.out.print(temp[j]);
 			
@@ -62,8 +62,35 @@ public abstract class AlgoritmosGeneticos {
 		}
 	}
 	
-	//Fitness È abstrato porque cada filho definir· o seu fitness
-	//Receber· como entrada um fenÛtipo e devolver· uma avaliaÁ„o
-	//O fenÛtipo de todas as funÁıes È um ponto no plano
+	//Fitness √© abstrato porque cada filho definir√° o seu fitness
+	//Receber√° como entrada um fen√≥tipo e devolver√° uma avalia√ß√£o
+	//O fen√≥tipo de todas as fun√ß√µes √© um ponto no plano
 	protected abstract double fitness(Ponto fenotipo);
+	
+	//Calcula o fitness total da populacao
+        double fitnessTotal()
+        {
+            double total=0;
+            for(int[] ind : geracao)
+            {
+                total+=fitness(Utils.binarioPraDecimal(ind));
+            }
+            return total;
+        }
+        
+        //Metodo de selecao 1 -> giro de roleta
+        //Sorteia um  numero i no intervalo [0, fitness total da populacao]
+        //Escolhe o individuo no qual o i esta em seu intervalo/fatia
+        int[] giroDeRoleta()
+        {
+            int i = rand.nextInt((int)fitnessTotal());
+            for(int [] ind: geracao)
+            {
+                while(i>0)
+                    i-=fitness(Utils.binarioPraDecimal(ind));
+                return ind;
+            }
+            
+            return null;//Isso precisa ser arrumado
+        }
 }
