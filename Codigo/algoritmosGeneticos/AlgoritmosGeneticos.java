@@ -93,4 +93,38 @@ public abstract class AlgoritmosGeneticos {
             
             return null;//Isso precisa ser arrumado
         }
+        
+        //Operador de cruzamento 1 -> cruzamento de um ponto
+        //Escolhe dois individuos a e b da populacao
+        //Sorteia uma posicao i, pega de 0 a i do a e de i ao final de b e vice-versa
+        //Criando dois novos individuos
+        List<int[]> crossover1px()
+        {
+            List<int[]> filhos = new ArrayList();
+            int[] a = giroDeRoleta();
+            int[] b = giroDeRoleta();
+            
+            int p = rand.nextInt()%a.length;
+            if(p==0) p =1;
+            
+            int [] f1 = new int[a.length];
+            int [] f2 = new int[a.length];
+            
+            int i;
+            for(i = 0; i < p; i++)
+            {
+                f1[i] = a[i];
+                f2[i] = b[i];
+            }
+            for(i = p; i < f1.length; i++)
+            {
+                f1[i] = b[i];
+                f2[i] = a[i];
+            }
+            
+            filhos.add(a);
+            filhos.add(b);
+            
+            return filhos;
+        }
 }
