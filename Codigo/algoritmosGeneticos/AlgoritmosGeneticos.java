@@ -82,19 +82,34 @@ public abstract class AlgoritmosGeneticos {
         }
         
         //Metodo de selecao 1 -> giro de roleta
-        //Sorteia um  numero i no intervalo [0, fitness total da populacao]
-        //Escolhe o individuo no qual o i esta em seu intervalo/fatia
+        //Sorteia dois  numeros i,j no intervalo [0, fitness total da populacao]
+        //Escolhe os dois individuos no qual o i e j esta em seu intervalo/fatia
+        //Retorna um vetor de duas posições, cada uma delas com o indice de um dos individuos escolhidos
         int[] giroDeRoleta()
         {
-            int i = rand.nextInt((int)fitnessTotal());
-            for(int [] ind: geracao)
-            {
-                while(i>0)
-                    i-=fitness(Utils.binarioPraDecimal(ind, min, max));
-                return Arrays.copyOf(ind, ind.length);
+            int g1 = rand.nextInt((int)fitnessTotal());//Numero da roleta para primeira escolha
+            int [] ind;
+            int escolhido=0;
+            for(int j = 0; g1>0; j++)
+            {                
+                ind = geracao.get(j);
+                g1-=fitness(Utils.binarioPraDecimal(ind, min, max));
+                escolhido = j;
             }
+            int j;
+            do
+            {
+                int g2 = rand.nextInt((int)fitnessTotal()); //Numero da roleta para segunda escolha
+                for(j = 0; g2>0; j++)
+                {   
+                    ind = geracao.get(j);
+                    g2-=fitness(Utils.binarioPraDecimal(ind, min, max));
+                    g1 = j;
+                }
+            }while(g1!=escolhido);//Para garantir que não escolhemos dois iguais
             
-            return null;//Isso precisa ser arrumado
+            return new int[]{escolhido, g1};
+            
         }
         
         //Operador de cruzamento 1 -> cruzamento de um ponto
@@ -104,8 +119,10 @@ public abstract class AlgoritmosGeneticos {
         List<int[]> crossover1px()
         {
             List<int[]> filhos = new ArrayList();
-            int[] a = giroDeRoleta();
-            int[] b = giroDeRoleta();
+            int[] escolhidos = giroDeRoleta();
+            
+            int [] a = geracao.get(escolhidos[0]);
+            int [] b = geracao.get(escolhidos[1]);
             
             int p = rand.nextInt()%(a.length-1)+1;
             
