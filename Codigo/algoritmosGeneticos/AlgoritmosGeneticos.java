@@ -15,6 +15,9 @@ public abstract class AlgoritmosGeneticos {
 	//indGeracao -> Indicador da geração em que a população está
 	int indGeracao;
 	
+	Intervalo da funcao
+	int min, max;
+	
 	//rand -> operador aleatório
 	Random rand;
 	
@@ -73,7 +76,7 @@ public abstract class AlgoritmosGeneticos {
             double total=0;
             for(int[] ind : geracao)
             {
-                total+=fitness(Utils.binarioPraDecimal(ind));
+                total+=fitness(Utils.binarioPraDecimal(ind, min, max));
             }
             return total;
         }
@@ -87,8 +90,8 @@ public abstract class AlgoritmosGeneticos {
             for(int [] ind: geracao)
             {
                 while(i>0)
-                    i-=fitness(Utils.binarioPraDecimal(ind));
-                return ind;
+                    i-=fitness(Utils.binarioPraDecimal(ind, min, max));
+                return Arrays.copyOf(ind, ind.length);
             }
             
             return null;//Isso precisa ser arrumado
@@ -104,8 +107,7 @@ public abstract class AlgoritmosGeneticos {
             int[] a = giroDeRoleta();
             int[] b = giroDeRoleta();
             
-            int p = rand.nextInt()%a.length;
-            if(p==0) p =1;
+            int p = rand.nextInt()%(a.length-1)+1;
             
             int [] f1 = new int[a.length];
             int [] f2 = new int[a.length];
