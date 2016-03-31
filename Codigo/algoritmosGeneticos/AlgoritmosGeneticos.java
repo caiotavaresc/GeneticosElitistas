@@ -1,4 +1,16 @@
 package algoritmosGeneticos;
+
+/* REQUISITOS BASICOS DO TRABALHO
+uso de dois diferentes tamanhos de popula¸c˜ao, de grandezes bem diferentes; 
+dois crit´erios de parada;
+para a parte I - cromossomo com codifica¸c˜ao bin´aria; -> FEITO E NAO TESTADO
+um operador de sele¸c˜ao (preferencialmente roleta); -> FEITO E NAO TESTADO
+dois operadores de crossover (crossover de um ponto e outro `a escolha do grupo); -> FEITO E NAO TESTADO
+dois operadores de muta¸c˜ao (muta¸c˜ao simples e outro `a escolha do grupo); -> 1/2 E NAO TESTADO
+dois crit´erios de troca de popula¸c˜ao;
+evolu¸c˜ao sem eletismo e com elitismo.
+*/
+
 import java.util.*;
 
 //A classe AlgoritmosGeneticos implementará a lógica geral dos algoritmos genéticos
@@ -146,4 +158,71 @@ public abstract class AlgoritmosGeneticos {
             
             return filhos;
         }
+        
+        //Operador de cruzamento 2 -> cruzamento de dois ponto
+        //Escolhe dois individuos a e b da populacao
+        //Sorteia uma posicao p1 e uma p2, garante que p1 seja < p2.
+        //Cria dois individuos, 
+        //sendo um deles da posicao 0 a p1 igual o pai 1, da p1 ate a p2 igual o pai 2 e da p2 ate o final igual o pai 1
+        //O segundo filho é o inverso, [pai2|pai1|pai2]
+        //Criando dois novos individuos
+        List<int[]> crossover2px()
+        {
+            List<int[]> filhos = new ArrayList();
+            int[] escolhidos = giroDeRoleta();
+            
+            int [] a = geracao.get(escolhidos[0]);
+            int [] b = geracao.get(escolhidos[1]);
+            
+            int p1 = rand.nextInt()%(a.length-1)+1;
+            int p2 = rand.nextInt()%(a.length-1)+1;
+            while(p2<=p1)
+                if(p2 < p1)
+                {
+                    int aux = p1;
+                    p1 = p2;
+                    p2 = aux;
+                }else if(p2==p1)
+                {
+                    p1 = rand.nextInt()%(a.length-1)+1;
+                    p2 = rand.nextInt()%(a.length-1)+1;
+                }
+            
+            int [] f1 = new int[a.length];
+            int [] f2 = new int[a.length];
+            
+            for(int i = 0; i < p1; i++)
+            {
+                f1[i] = a[i];
+                f2[i] = b[i];
+            }
+            for(int i = p1; i < p2; i++)
+            {
+                f1[i] = b[i];
+                f2[i] = a[i];
+            }
+            for(int i = p2; i < a.length; i++)
+            {
+                f1[i] = a[i];
+                f2[i] = b[i];
+            }
+            
+            filhos.add(a);
+            filhos.add(b);
+            
+            return filhos;
+        }
+        
+        //Operador de mutação 1 -> Mutação simples
+        int [] mutacaoSimples(int indice)
+        {
+            int[] mutante = geracao.get(indice);
+            
+            int m = rand.nextInt()%(mutante.length);
+            
+            mutante[m] = rand.nextInt(2);
+            
+            return mutante; //Nao tenho certeza da necessidade desse retorno
+        }
+        
 }
