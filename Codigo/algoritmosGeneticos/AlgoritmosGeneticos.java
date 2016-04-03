@@ -28,7 +28,12 @@ public abstract class AlgoritmosGeneticos {
 	int indGeracao;
 	
 	//Intervalo da funcao
-	int min, max;
+	protected int min, max;
+	
+	//Tipo de Funcao
+	protected int tipoFun;
+	protected static final int MINIMIZACAO = 0;
+	protected static final int MAXIMIZACAO = 1;
 	
 	//rand -> operador aleatorio
 	Random rand;
@@ -51,6 +56,9 @@ public abstract class AlgoritmosGeneticos {
 	private static final int CROSS1PONTO = 0;
 	private static final int CROSS2PONTOS = 1;
 	
+	//Numero de Crossovers que ocorrerao por ciclo evolutivo
+	protected int numCross;
+	
 	//Probabilidade de ocorrer Crossover
 	protected double probCrossover;
 	
@@ -61,8 +69,10 @@ public abstract class AlgoritmosGeneticos {
 	//Probabilidade de mutacao
 	protected double probMutacao;
 	
-	//Criterio de Selecao
-	protected int critSelecao;
+	//Criterio de Troca
+	protected int critTroca;
+	private static final int COM_SUBST = 0;
+	private static final int SEM_SUBST = 1;
 	
 	//Elitismo?
 	protected boolean elitismo;
@@ -92,23 +102,26 @@ public abstract class AlgoritmosGeneticos {
 	{
 		Iterator<int[]> i;
 		int[] temp;
-		int j;
+		int j, k;
 		
 		i = this.geracao.iterator();
+		k = 0;
 		
 		//Navegar nos elementos
 		while(i.hasNext())
 		{
 			temp = i.next();
 			
-			System.out.print("Individuo " + i + ": ");
+			System.out.print("Individuo " + k++ + ": ");
 			
-			//Imprimir o indiv√≠duo
+			//Imprimir o individuo
 			for(j = 0; j < temp.length; j++)
 				System.out.print(temp[j]);
 			
 			System.out.println("");
 		}
+		
+		System.out.println("");
 	}
 	
 	//Fitness e abstrato porque cada filho definira° o seu fitness
@@ -133,7 +146,7 @@ public abstract class AlgoritmosGeneticos {
         //Retorna um vetor de duas posicoes, cada uma delas com o indice de um dos individuos escolhidos
         int[] giroDeRoleta()
         {
-            int g1 = rand.nextInt((int)fitnessTotal());//Numero da roleta para primeira escolha
+            int g1 = (int)(rand.nextDouble() * this.fitnessTotal());//Numero da roleta para primeira escolha
             int [] ind;
             int escolhido=0;
             
@@ -171,7 +184,7 @@ public abstract class AlgoritmosGeneticos {
             int [] a = geracao.get(escolhidos[0]);
             int [] b = geracao.get(escolhidos[1]);
             
-            int p = rand.nextInt()%(a.length-1)+1;
+            int p = rand.nextInt(a.length-1);
             
             int [] f1 = new int[a.length];
             int [] f2 = new int[a.length];
@@ -210,8 +223,8 @@ public abstract class AlgoritmosGeneticos {
             int [] a = geracao.get(escolhidos[0]);
             int [] b = geracao.get(escolhidos[1]);
             
-            int p1 = rand.nextInt()%(a.length-1)+1;
-            int p2 = rand.nextInt()%(a.length-1)+1;
+            int p1 = rand.nextInt(a.length-1);
+            int p2 = rand.nextInt(a.length-1);
             while(p2<=p1)
                 if(p2 < p1)
                 {
@@ -220,8 +233,8 @@ public abstract class AlgoritmosGeneticos {
                     p2 = aux;
                 }else if(p2==p1)
                 {
-                    p1 = rand.nextInt()%(a.length-1)+1;
-                    p2 = rand.nextInt()%(a.length-1)+1;
+                    p1 = rand.nextInt(a.length-1);
+                    p2 = rand.nextInt(a.length-1);
                 }
             
             int [] f1 = new int[a.length];
@@ -259,7 +272,7 @@ public abstract class AlgoritmosGeneticos {
             int[] mutante = proxFilhos.get(indice);
             
             //Escolher um gene
-            int m = rand.nextInt()%(mutante.length);
+            int m = rand.nextInt(mutante.length);
             
             //Escolher um elemento do alfabeto
             mutante[m] = rand.nextInt(2);
@@ -282,7 +295,8 @@ public abstract class AlgoritmosGeneticos {
         	return true;
         }
         
-        //Operador de Selecao 1) Melhores da geracao
+        //Operador de troca de populacao Melhores dentre os filhos
+        //Esse operador esta funcionando para problemas de maximizacao -> Deve ser adaptado para minimizacao
         List<int[]> melhoresFilhos(List<int[]> proxFilhos)
         {
         	List<int[]> melhoresFilhos;
@@ -324,11 +338,48 @@ public abstract class AlgoritmosGeneticos {
         	while(it.hasNext())
         		melhoresFilhos.addAll(mapeamento.get(it.next()));
         	
-        	//Agora basta retirar os piores (inicio da lista)
+        	//Agora basta retirar os piores
         	while(melhoresFilhos.size() > this.numIndividuos)
-        		melhoresFilhos.remove(0);
+        		//Se o problema for de maximizacao, os piores estao no inicio da lista
+        		//Se o problema for de minimizacao, os piores estao no fim da lista
+        		if(this.tipoFun == MAXIMIZACAO)
+        			melhoresFilhos.remove(0);
+        		else if(this.tipoFun == MINIMIZACAO)
+        			melhoresFilhos.remove(melhoresFilhos.size()-1);
         	
         	return melhoresFilhos;
+        }
+        
+        //Metodo que retorna o individuo mais bem adaptado da geracao atual
+        int[] getBetter()
+        {
+        	int[] maximo, minimo;
+        	double maxFitness, minFitness;
+        	
+        	maxFitness = minFitness = this.fitness(Utils.binarioPraDecimal(this.geracao.get(0), this.min, this.max));
+        	maximo = minimo = this.geracao.get(0);
+        	
+        	for(int i = 1; i < this.numIndividuos; i++)
+        	{
+        		if(this.fitness(Utils.binarioPraDecimal(this.geracao.get(i), this.min, this.max)) > maxFitness)
+        		{
+        			maxFitness = this.fitness(Utils.binarioPraDecimal(this.geracao.get(i), this.min, this.max));
+        			maximo = this.geracao.get(i);
+        		}
+        		
+        		if(this.fitness(Utils.binarioPraDecimal(this.geracao.get(i), this.min, this.max)) < minFitness)
+        		{
+        			minFitness = this.fitness(Utils.binarioPraDecimal(this.geracao.get(i), this.min, this.max));
+        			minimo = this.geracao.get(i);
+        		}
+        	}
+        	
+        	//Se o problema for de maximizacao, retorno o maximo
+        	//Se o problema for de minimizacao, retorno o minimo
+        	if(this.tipoFun == MINIMIZACAO)
+        		return minimo;
+        	else
+        		return maximo;
         }
         
         //Metodo Evolucao: Evoluira o algoritmo guiado pelos parametros
@@ -349,25 +400,33 @@ public abstract class AlgoritmosGeneticos {
         	this.geradorInicial(this.numIndividuos);
         	this.indGeracao = 1;
         	
+        	//Imprimir a primeira geracao
+        	this.imprimeGeracao();
+        	
         	// Iniciar a Evolucao
         	// A Evolucao ser· um while true, cujo criterio de parada definira o break
         	while(true)
         	{
         		//A evolucao consiste em:
         		
-        		//1) Dada um probabilidade de ocorrer o crossOver
-        		if(this.rand.nextDouble() <= this.probCrossover)
+        		//0) Ocorrer„o n CrossOvers
+        		for(int contCross = 0; contCross < this.numCross; contCross++)
         		{
-        			//a) Selecionar os pais
-        			//b) Efetuar o cruzamento e gerar os filhos
-        			if(this.tipoCrossover == CROSS1PONTO)
-        				proxFilhos.addAll(this.crossover1px());
-        			else if(this.tipoCrossover == CROSS2PONTOS)
-        				proxFilhos.addAll(this.crossover2px());
-        		}
         		
+	        		//1) Dada um probabilidade de ocorrer o crossOver
+	        		if(this.rand.nextDouble() <= this.probCrossover)
+	        		{
+	        			//a) Selecionar os pais
+	        			//b) Efetuar o cruzamento e gerar os filhos
+	        			if(this.tipoCrossover == CROSS1PONTO)
+	        				proxFilhos.addAll(this.crossover1px());
+	        			else if(this.tipoCrossover == CROSS2PONTOS)
+	        				proxFilhos.addAll(this.crossover2px());
+	        		}
+        		}
+	        		
         		//2) Dada uma probabilidade de ocorrer a mutacao
-        		if(this.rand.nextDouble() <= this.probMutacao)
+        		if(this.rand.nextDouble() <= this.probMutacao && proxFilhos.size() > 0)
         		{
         			//Efetuar a mutacao
         			if(this.tipoMutacao == MUTACAOTRAD)
@@ -375,7 +434,16 @@ public abstract class AlgoritmosGeneticos {
         		}
         		
         		//3) Selecionar os melhores filhos para compor a proxima geracao
-        		//Necessario implementar os criterios de selecao
+        		
+        		//Aplicar o criterio de troca de populacao
+        		if(this.critTroca == SEM_SUBST)
+        			proxFilhos.addAll(this.geracao);
+        		else
+        			//Se for aplicada troca com substituicao de populacao, verificar se vai ser aplicado elitismo
+        			if(this.elitismo)
+        				proxFilhos.add(this.getBetter());
+        		//Nota: por uma questao simples, nao se aplica elitismo quando nao ha substituicao de populacao
+        		
         		this.geracao = this.melhoresFilhos(proxFilhos);
         		
         		//Incrementar a geracao
@@ -394,6 +462,12 @@ public abstract class AlgoritmosGeneticos {
         			if(this.indGeracao == this.numGeracoes)
         				break;
         		}
+        		
+        		//A cada iteracao imprimir a geracao
+        		this.imprimeGeracao();
+        		
+        		//Limpar os objetos utilizados
+        		proxFilhos.clear();
         	}
         }      
 }

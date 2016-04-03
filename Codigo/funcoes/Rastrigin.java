@@ -1,32 +1,31 @@
 package funcoes;
 import algoritmosGeneticos.Ponto;
 
-//Classe GOLD -> Mapeia o algoritmo genético para a função Gold
+//Classe GOLD -> Mapeia o algoritmo genético para a função Rastrigin
 //Objetivo: Minimização
-public class Gold extends algoritmosGeneticos.AlgoritmosGeneticos{
+public class Rastrigin extends algoritmosGeneticos.AlgoritmosGeneticos{
 
 	//Método construtor -> Chama o construtor da classe pai
-	Gold() 
+	Rastrigin() 
 	{
 		super();
 	}
 	
 	//Método fitness -> Função de avaliação
 	//O fenótipo de todas as funções é um ponto no plano
-	//Na função GOLD temos que mapear os domínios positivo e negativo. A função resultará apenas no domínio positivo
-	//O domínio negativo (-z) deve ser tratado no código
 	protected double fitness(Ponto fenotipo)
 	{
-		double a, b, z, x, y;
+		double zx, zy, z, x, y;
 	
 		//Atribuir valores
 		x = fenotipo.x;
 		y = fenotipo.y;
 		
 		//Representação da função passada na especificação
-		a = 1 + Math.pow((x + y + 1), 2) * (19-14*Math.pow(x,2) - 14*y + 6*x*y + 3*Math.pow(y,2));
-		b = 30 + Math.pow((2*x - 3*y), 2) * (18 - 32*x + 12*Math.pow(x,2) + 48*y -36*x*y + 27*Math.pow(y,2));
-		z = a*b;
+		zx = Math.pow(x, 2) - 10 * Math.cos(2 * Math.PI * x) + 10;
+		zy = Math.pow(y, 2) - 10 * Math.cos(2 * Math.PI * y) + 10;
+		
+		z = zx + zy;
 		
 		return z;
 	}
@@ -47,29 +46,29 @@ public class Gold extends algoritmosGeneticos.AlgoritmosGeneticos{
      * 10 -> Elitismo - 0 [não] 1 [sim]*/
 	public static void main(String[] args) {
 		
-		Gold gold = new Gold();
+		Rastrigin rastr = new Rastrigin();
 		
 		//Passar os parametros
-		gold.numGenes = Integer.valueOf(args[0]);
-		gold.numIndividuos = Integer.valueOf(args[1]);
-		gold.critParada = Integer.valueOf(args[2]);
-		gold.numGeracoes = Integer.valueOf(args[3]);
-		gold.numCross = Integer.valueOf(args[4]);
-		gold.tipoCrossover = Integer.valueOf(args[5]);
-		gold.probCrossover = Double.valueOf(args[6]);
-		gold.tipoMutacao = Integer.valueOf(args[7]);
-		gold.probMutacao = Double.valueOf(args[8]);
-		gold.critTroca = Integer.valueOf(args[9]);
-		gold.elitismo = Boolean.valueOf(args[10]);
+		rastr.numGenes = Integer.valueOf(args[0]);
+		rastr.numIndividuos = Integer.valueOf(args[1]);
+		rastr.critParada = Integer.valueOf(args[2]);
+		rastr.numGeracoes = Integer.valueOf(args[3]);
+		rastr.numCross = Integer.valueOf(args[4]);
+		rastr.tipoCrossover = Integer.valueOf(args[5]);
+		rastr.probCrossover = Double.valueOf(args[6]);
+		rastr.tipoMutacao = Integer.valueOf(args[7]);
+		rastr.probMutacao = Double.valueOf(args[8]);
+		rastr.critTroca = Integer.valueOf(args[9]);
+		rastr.elitismo = Boolean.valueOf(args[10]);
 		
 		//Definir o intervalo de otimizacao
-		gold.min = -2;
-		gold.max = 2;
+		rastr.min = -5;
+		rastr.max = 5;
 		
 		//Definir a natureza do problema
-		gold.tipoFun = MINIMIZACAO;
+		rastr.tipoFun = MAXIMIZACAO;
 		
 		//Mandar evoluir
-		gold.evolucao();
+		rastr.evolucao();
 	}
 }
