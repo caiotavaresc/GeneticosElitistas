@@ -30,5 +30,37 @@ public class Gold extends algoritmosGeneticos.AlgoritmosGeneticos{
 		
 		return z;
 	}
-
+	
+    //Metodo main: Executa a evolucao -- Ocorre por subclasse
+    
+    /*Parametros
+     * 0 -> Num de cromossomos por genotipo
+     * 1 -> Num Individuos por geracao
+     * 2 -> Criterio de Parada - 0 [Convergencia] 1 [Num Geracoes]
+     * 3 -> Numero de Geracoes (So sera usado se o criterio de parada for 1)
+     * 4 -> Tipo de Crossover - 0 [Um ponto] 1 [Dois pontos]
+     * 5 -> Probabilidade de crossover - entre 0.00 e 1.00
+     * 6 -> Tipo de Mutacao
+     * 7 -> Probabilidade de Mutacao - entra 0.00 e 1.00
+     * 8 -> Criterio de Selecao
+     * 9 -> Elitismo - 0 [não] 1 [sim]*/
+	public static void main(String[] args) {
+		
+		Gold gold = new Gold();
+		
+		//Passar os parametros
+		gold.numGenes = Integer.valueOf(args[0]);
+		gold.numIndividuos = Integer.valueOf(args[1]);
+		gold.critParada = Integer.valueOf(args[2]);
+		gold.numGeracoes = Integer.valueOf(args[3]);
+		gold.tipoCrossover = Integer.valueOf(args[4]);
+		gold.probCrossover = Double.valueOf(args[5]);
+		gold.tipoMutacao = Integer.valueOf(args[6]);
+		gold.probMutacao = Double.valueOf(args[7]);
+		gold.critSelecao = Integer.valueOf(args[8]);
+		gold.elitismo = Boolean.valueOf(args[9]);
+		
+		//Mandar evoluir
+		gold.evolucao();
+	}
 }

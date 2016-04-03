@@ -1,13 +1,12 @@
 package algoritmosGeneticos;
 
-//A classe Utils implementará funções diversas (principalmente de manipulação de binários)
-//que não fazem parte do escopo do problema mas são necessárias para tal
+//A classe Utils implementara funcoes diversas (principalmente de manipulacao de binarios)
+//que nao fazem parte do escopo do problema mas sao necessarias para tal
 public class Utils {
 
 	//binarioPraDecimal -> Recebe como entrada um array de int que representa um ponto no plano e retorna o ponto
-	//Ainda precisamos definir tamanho de geração, mantissa, expoente, e etc para modelar essa função
-	//Essa é a função de mapeamento que mapeiao genótipo em fenótipo
-	//entrada é o genoma, min e max são as definições do intervalo (dependentes da funcao).
+	//Essa e a funcao de mapeamento que mapeiao genotipo em fenotipo
+	//entrada e o genoma, min e max sao as definicoes do intervalo (dependentes da funcao).
 	static Ponto binarioPraDecimal(int[] entrada, int min, int max)
 	{
             double x = 0, y = 0;
