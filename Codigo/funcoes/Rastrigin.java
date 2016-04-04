@@ -26,6 +26,7 @@ public class Rastrigin extends algoritmosGeneticos.AlgoritmosGeneticos{
 		zy = Math.pow(y, 2) - 10 * Math.cos(2 * Math.PI * y) + 10;
 		
 		z = zx + zy;
+		z = z * -1;
 		
 		return z;
 	}

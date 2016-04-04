@@ -38,6 +38,9 @@ public abstract class AlgoritmosGeneticos {
 	//rand -> operador aleatorio
 	Random rand;
 	
+	//fitnessTotal - Guarda o fitness total da geracao - para evitar recalculo
+	double fitnessTotal;
+	
 	/*-----------------| Atributos da Evolucao |-----------------*/
 	//Criterio de Parada
 	protected int critParada;
@@ -146,7 +149,8 @@ public abstract class AlgoritmosGeneticos {
         //Retorna um vetor de duas posicoes, cada uma delas com o indice de um dos individuos escolhidos
         int[] giroDeRoleta()
         {
-            int g1 = (int)(rand.nextDouble() * this.fitnessTotal());//Numero da roleta para primeira escolha
+        	
+            int g1 = (int)(rand.nextDouble() * this.fitnessTotal);//Numero da roleta para primeira escolha
             int [] ind;
             int escolhido=0;
             
@@ -158,9 +162,12 @@ public abstract class AlgoritmosGeneticos {
             }
             
             int j;
+            
+            System.out.println(this.fitnessTotal);
+            
             do
             {
-                int g2 = rand.nextInt((int)fitnessTotal()); //Numero da roleta para segunda escolha
+                int g2 = (int) (rand.nextDouble() * this.fitnessTotal); //Numero da roleta para segunda escolha
                 for(j = 0; g2>0; j++)
                 {   
                     ind = geracao.get(j);
@@ -291,6 +298,9 @@ public abstract class AlgoritmosGeneticos {
         			return false;
         	}
         	
+        	Ponto point = Utils.binarioPraDecimal(this.geracao.get(0), this.min, this.max);
+        	System.out.println("X: " + point.x + " Y: " + point.y + " - Fitness: " + this.fitness(point));
+        	
         	//Se nao achou -> Convergiu - retorna true
         	return true;
         }
@@ -407,6 +417,9 @@ public abstract class AlgoritmosGeneticos {
         	// A Evolucao será um while true, cujo criterio de parada definira o break
         	while(true)
         	{
+        		//Armazenar o fitness total para evitar recalculo
+        		this.fitnessTotal = this.fitnessTotal();
+        		
         		//A evolucao consiste em:
         		
         		//0) Ocorrerão n CrossOvers
