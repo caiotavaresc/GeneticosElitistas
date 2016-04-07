@@ -1,20 +1,20 @@
 package funcoes;
 import algoritmosGeneticos.Ponto;
 
-//Classe GOLD -> Mapeia o algoritmo genÈtico para a funÁ„o Gold
-//Objetivo: MinimizaÁ„o
+//Classe GOLD -> Mapeia o algoritmo gen√©tico para a fun√ß√£o Gold
+//Objetivo: Minimiza√ß√£o
 public class Gold extends algoritmosGeneticos.AlgoritmosGeneticos{
 
-	//MÈtodo construtor -> Chama o construtor da classe pai
+	//M√©todo construtor -> Chama o construtor da classe pai
 	Gold() 
 	{
 		super();
 	}
 	
-	//MÈtodo fitness -> FunÁ„o de avaliaÁ„o
-	//O fenÛtipo de todas as funÁıes È um ponto no plano
-	//Na funÁ„o GOLD temos que mapear os domÌnios positivo e negativo. A funÁ„o resultar· apenas no domÌnio positivo
-	//O domÌnio negativo (-z) deve ser tratado no cÛdigo
+	//M√©todo fitness -> Fun√ß√£o de avalia√ß√£o
+	//O fen√≥tipo de todas as fun√ß√µes √© um ponto no plano
+	//Na fun√ß√£o GOLD temos que mapear os dom√≠nios positivo e negativo. A fun√ß√£o resultar√° apenas no dom√≠nio positivo
+	//O dom√≠nio negativo (-z) deve ser tratado no c√≥digo
 	protected double fitness(Ponto fenotipo)
 	{
 		double a, b, z, x, y;
@@ -23,7 +23,7 @@ public class Gold extends algoritmosGeneticos.AlgoritmosGeneticos{
 		x = fenotipo.x;
 		y = fenotipo.y;
 		
-		//RepresentaÁ„o da funÁ„o passada na especificaÁ„o
+		//Representa√ß√£o da fun√ß√£o passada na especifica√ß√£o
 		a = 1 + Math.pow((x + y + 1), 2) * (19-14*Math.pow(x,2) - 14*y + 6*x*y + 3*Math.pow(y,2));
 		b = 30 + Math.pow((2*x - 3*y), 2) * (18 - 32*x + 12*Math.pow(x,2) + 48*y -36*x*y + 27*Math.pow(y,2));
 		z = a*b;
@@ -44,12 +44,25 @@ public class Gold extends algoritmosGeneticos.AlgoritmosGeneticos{
      * 7 -> Tipo de Mutacao
      * 8 -> Probabilidade de Mutacao - entra 0.00 e 1.00
      * 9 -> Criterio de Troca de Populacao - 0 [com troca] 1 [sem troca]
-     * 10 -> Elitismo - 0 [n„o] 1 [sim]*/
+     * 10 -> Elitismo - 0 [n√£o] 1 [sim]*/
 	public static void main(String[] args) {
 		
 		Gold gold = new Gold();
 		
 		//Passar os parametros
+                args = new String[11];
+                args[0] = "60";
+                args[1] = "50";
+                args[2] = "0";
+                args[3] = "100";
+                args[4] = "50";
+                args[5] = "0";
+                args[6] = "0.9";
+                args[7] = "0";
+                args[8] = "0.2";
+                args[9] = "0";
+                args[10] = "0";
+                      
 		gold.numGenes = Integer.valueOf(args[0]);
 		gold.numIndividuos = Integer.valueOf(args[1]);
 		gold.critParada = Integer.valueOf(args[2]);
