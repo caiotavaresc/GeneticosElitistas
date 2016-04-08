@@ -28,6 +28,6 @@ public class Individuo implements Comparable<Individuo>{
 
     @Override
     public int compareTo(Individuo o) {
-        return (int)(this.fitness - o.fitness);
+        return Double.compare(this.fitness, o.fitness);
     }
 }
