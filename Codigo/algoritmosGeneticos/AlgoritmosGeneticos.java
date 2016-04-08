@@ -171,6 +171,8 @@ public abstract class AlgoritmosGeneticos {
                 fitnessTotalRoleta += novoFitness;
             }
         }
+        if(fitnessTotalRoleta == 0) fitnessTotalRoleta =1;
+        Collections.shuffle(geracaoRoleta);
     }
     
     
@@ -178,16 +180,16 @@ public abstract class AlgoritmosGeneticos {
     //Sorteia dois  numeros i,j no intervalo [0, fitness total da populacao]
     //Escolhe os dois individuos no qual o i e j esta em seu intervalo/fatia
     //Retorna um vetor de duas posicoes, cada uma delas com o indice de um dos individuos escolhidos
-    int[] roleta() {
+    Individuo[] roleta() {
 
         double g1 = (rand.nextDouble());//Numero da roleta para primeira escolha
-        Individuo ind;
+        Individuo ind1 = null,ind2 = null;
         int escolhido = 0;
-
+        
        
         for (int j = 0; g1 > 0; j++) {
-            ind = geracaoRoleta.get(j);
-            double x =(ind.fitness) / this.fitnessTotalRoleta; 
+            ind1 = geracaoRoleta.get(j);
+            double x =(ind1.fitness) / this.fitnessTotalRoleta; 
             g1 -= x;
             escolhido = j;
         }
@@ -197,14 +199,13 @@ public abstract class AlgoritmosGeneticos {
         do {
             g1 = (rand.nextDouble()); //Numero da roleta para segunda escolha
             for (int j = 0; g1 > 0 && j < geracao.size(); j++) {
-                ind = geracaoRoleta.get(j);
-                double x =(ind.fitness) / this.fitnessTotalRoleta; 
+                ind2 = geracaoRoleta.get(j);
+                double x =(ind2.fitness) / this.fitnessTotalRoleta; 
                 g1 -= x;
                 escolhido2 = j;
             }
-        } while (escolhido2 != escolhido);//Para garantir que nao escolhemos dois iguais
-
-        return new int[]{escolhido, escolhido2};
+        } while (escolhido2 == escolhido);//Para garantir que nao escolhemos dois iguais
+        return new Individuo[]{ind1, ind2};
     }
 
     double fitnessTotalRoleta(int fator, double shift) {
@@ -227,29 +228,30 @@ public abstract class AlgoritmosGeneticos {
     //Criando dois novos individuos
     List<Individuo> crossover1px() {
         List<Individuo> filhos = new ArrayList();
-        int[] escolhidos = roleta();
+        Individuo[] escolhidos = roleta();
 
-        int[] a = geracao.get(escolhidos[0]).getGenotipo();
-        int[] b = geracao.get(escolhidos[1]).getGenotipo();
+        
+        int[] pai1 = escolhidos[0].getGenotipo();
+        int[] pai2 = escolhidos[1].getGenotipo();
+        
+        int p = rand.nextInt(pai1.length - 1)+1;
 
-        int p = rand.nextInt(a.length - 1);
-
-        int[] f1 = new int[a.length];
-        int[] f2 = new int[a.length];
+        int[] f1 = new int[pai1.length];
+        int[] f2 = new int[pai1.length];
 
         int i;
         for (i = 0; i < p; i++) {
-            f1[i] = a[i];
-            f2[i] = b[i];
+            f1[i] = pai1[i];
+            f2[i] = pai2[i];
         }
 
         for (i = p; i < f1.length; i++) {
-            f1[i] = b[i];
-            f2[i] = a[i];
+            f1[i] = pai2[i];
+            f2[i] = pai1[i];
         }
-
-        filhos.add(new Individuo(a, fitness(Utils.binarioPraDecimal(a, min, max))));
-        filhos.add(new Individuo(b, fitness(Utils.binarioPraDecimal(b, min, max))));
+        
+        filhos.add(new Individuo(f1, fitness(Utils.binarioPraDecimal(f1, min, max))));
+        filhos.add(new Individuo(f2, fitness(Utils.binarioPraDecimal(f2, min, max))));
 
         return filhos;
     }
@@ -263,42 +265,42 @@ public abstract class AlgoritmosGeneticos {
     //Criando dois novos individuos
     List<Individuo> crossover2px() {
         List<Individuo> filhos = new ArrayList();
-        int[] escolhidos = roleta();
+        Individuo[] escolhidos = roleta();
 
-        int[] a = geracao.get(escolhidos[0]).getGenotipo();
-        int[] b = geracao.get(escolhidos[1]).getGenotipo();
+        int[] pai1 = escolhidos[0].getGenotipo();
+        int[] pai2 = escolhidos[1].getGenotipo();
 
-        int p1 = rand.nextInt(a.length - 1);
-        int p2 = rand.nextInt(a.length - 1);
+        int p1 = rand.nextInt(pai1.length - 1)+1;
+        int p2 = rand.nextInt(pai1.length - 1)+1;
         while (p2 <= p1) {
             if (p2 < p1) {
                 int aux = p1;
                 p1 = p2;
                 p2 = aux;
             } else if (p2 == p1) {
-                p1 = rand.nextInt(a.length - 1);
-                p2 = rand.nextInt(a.length - 1);
+                p1 = rand.nextInt(pai1.length - 1);
+                p2 = rand.nextInt(pai1.length - 1);
             }
         }
 
-        int[] f1 = new int[a.length];
-        int[] f2 = new int[a.length];
+        int[] f1 = new int[pai1.length];
+        int[] f2 = new int[pai1.length];
 
         for (int i = 0; i < p1; i++) {
-            f1[i] = a[i];
-            f2[i] = b[i];
+            f1[i] = pai1[i];
+            f2[i] = pai2[i];
         }
         for (int i = p1; i < p2; i++) {
-            f1[i] = b[i];
-            f2[i] = a[i];
+            f1[i] = pai2[i];
+            f2[i] = pai1[i];
         }
-        for (int i = p2; i < a.length; i++) {
-            f1[i] = a[i];
-            f2[i] = b[i];
+        for (int i = p2; i < pai1.length; i++) {
+            f1[i] = pai1[i];
+            f2[i] = pai2[i];
         }
 
-        filhos.add(new Individuo(a, fitness(Utils.binarioPraDecimal(a, min, max))));
-        filhos.add(new Individuo(b, fitness(Utils.binarioPraDecimal(b, min, max))));
+        filhos.add(new Individuo(f1, fitness(Utils.binarioPraDecimal(f1, min, max))));
+        filhos.add(new Individuo(f2, fitness(Utils.binarioPraDecimal(f2, min, max))));
 
         return filhos;
     }
@@ -326,14 +328,14 @@ public abstract class AlgoritmosGeneticos {
         //Se achou alguem com fitness igual ao do primeiro, retorna false
         int i=0;
         for (i = 1; i < this.geracao.size(); i++) {
-            System.out.println("COMPARANDO "+this.geracao.get(i).fitness + " "+ firstFitness);
+ 
             if (this.geracao.get(i).fitness != firstFitness) {
                 return false;
             }
         }
 
         Ponto point = Utils.binarioPraDecimal(this.geracao.get(0).getGenotipo(), this.min, this.max);
-        System.out.println("123X: " + point.x + " Y: " + point.y + " - Fitness: " + this.fitness(point));
+        System.out.println("X: " + point.x + " Y: " + point.y + " - Fitness: " + this.fitness(point));
 
         //Se nao achou -> Convergiu - retorna true
         return true;
@@ -343,52 +345,12 @@ public abstract class AlgoritmosGeneticos {
     //Esse operador esta funcionando para problemas de maximizacao -> Deve ser adaptado para minimizacao
     List<Individuo> melhoresFilhos(List<Individuo> proxFilhos) {
         List<Individuo> melhoresFilhos;
-        melhoresFilhos = new ArrayList();
-
-        Set<Double> fitness;
-        Iterator<Double> it;
-
-        //Criar um mapa ordenado para indexar os filhos por fitness
-        Map<Double, List<Individuo>> mapeamento;
-        mapeamento = new TreeMap();
-
-        //Ir adicionando os filhos
-        for (int i = 0; i < proxFilhos.size(); i++) {
-            double fitnessI;
-            fitnessI = this.fitness(Utils.binarioPraDecimal(proxFilhos.get(i).getGenotipo(), this.min, this.max));
-
-            //Se o fitness ja estiver no mapeamento, apenas adicionar o filho
-            if (mapeamento.containsKey(fitnessI)) {
-                mapeamento.get(fitnessI).add(proxFilhos.get(i));
-            } //Caso contrario, colocar o fitness no mapeamento e criar uma nova lista com o individuo
-            else {
-                List<Individuo> mapeador = new ArrayList();
-                mapeador.add(proxFilhos.get(i));
-
-                mapeamento.put(fitnessI, mapeador);
-            }
-        }
-
-        //Depois de mapear todos os filhos pelo fitness, basta colocar os com melhor fitness na proxima geracao
-        fitness = mapeamento.keySet();
-        it = fitness.iterator();
-
-        //Todos os filhos foram adicionados em ordem crescente
-        while (it.hasNext()) {
-            melhoresFilhos.addAll(mapeamento.get(it.next()));
-        }
-
-        //Agora basta retirar os piores
-        while (melhoresFilhos.size() > this.numIndividuos) //Se o problema for de maximizacao, os piores estao no inicio da lista
-        //Se o problema for de minimizacao, os piores estao no fim da lista
-        {
-            if (this.tipoFun == MAXIMIZACAO) {
-                melhoresFilhos.remove(0);
-            } else if (this.tipoFun == MINIMIZACAO) {
-                melhoresFilhos.remove(melhoresFilhos.size() - 1);
-            }
-        }
-
+        Collections.sort(proxFilhos);
+        if(tipoFun == MAXIMIZACAO)
+            melhoresFilhos = proxFilhos.subList(proxFilhos.size()-numIndividuos, proxFilhos.size());
+        else
+            melhoresFilhos = proxFilhos.subList(0, numIndividuos);
+        
         return melhoresFilhos;
     }
 
@@ -475,12 +437,19 @@ public abstract class AlgoritmosGeneticos {
                     proxFilhos.add(this.getBetter());
                 }
             //Nota: por uma questao simples, nao se aplica elitismo quando nao ha substituicao de populacao
-
-            this.geracao = this.melhoresFilhos(proxFilhos);
+            List<Individuo> copiaFilhos = new ArrayList<Individuo>();
+            copiaFilhos.addAll(proxFilhos);
+            this.geracao = this.melhoresFilhos(copiaFilhos);
 
             //Incrementar a geracao
             this.indGeracao++;
-
+            
+            //A cada iteracao imprimir a geracao
+            this.imprimeGeracao();
+            Collections.sort(geracao);
+            System.out.println("FITNESS: U"+geracao.get(geracao.size()-1).fitness);
+            System.out.println("FITNESS: P"+geracao.get(0).fitness);
+            
             //4) Parar a evolucao quando for a hora certa
             if (this.critParada == CONVERGENCIA) {
                 //Teste de convergencia - Se a geracao convergiu, paramos a evolucao
@@ -494,11 +463,7 @@ public abstract class AlgoritmosGeneticos {
                 }
             }
 
-            //A cada iteracao imprimir a geracao
-            this.imprimeGeracao();
-            Collections.sort(geracao);
-            System.out.println("FITNESS: U"+geracao.get(geracao.size()-1).fitness);
-            System.out.println("FITNESS: P"+geracao.get(0).fitness);
+            
             //Limpar os objetos utilizados
             proxFilhos.clear();
         }
