@@ -318,6 +318,27 @@ public abstract class AlgoritmosGeneticos {
 
         //Escolher um elemento do alfabeto
         mutante[m] = rand.nextInt(2);
+        proxFilhos.remove(indice);
+        proxFilhos.add(indice, new Individuo(mutante, fitness(Utils.binarioPraDecimal(mutante, min, max))));
+    }
+    
+    //Operador de mutacao 2 -> Mutacao flip
+    void mutacaoFlip(List<Individuo> proxFilhos) {
+        int indice;
+
+        //Escolher um individuo
+        indice = this.rand.nextInt(proxFilhos.size());
+        int[] mutante = proxFilhos.get(indice).getGenotipo();
+        //Escolher um gene
+        int m1 = rand.nextInt(mutante.length);
+        int m2 = rand.nextInt(mutante.length);
+
+        //Escolher um elemento do alfabeto
+        int aux = mutante[m1];
+        mutante[m1] = mutante[m2];
+        mutante[m2] = aux;
+        proxFilhos.remove(indice);
+        proxFilhos.add(indice, new Individuo(mutante, fitness(Utils.binarioPraDecimal(mutante, min, max))));
     }
 
     //Teste de convergencia - Verifica se todos os individuos tem o mesmo fitness
