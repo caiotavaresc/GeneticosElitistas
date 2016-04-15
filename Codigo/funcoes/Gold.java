@@ -1,5 +1,5 @@
 package funcoes;
-import algoritmosGeneticos.Ponto;
+import algoritmosGeneticos.Utils;
 
 //Classe GOLD -> Mapeia o algoritmo genético para a função Gold
 //Objetivo: Minimização
@@ -15,20 +15,20 @@ public class Gold extends algoritmosGeneticos.AlgoritmosGeneticos{
 	//O fenótipo de todas as funções é um ponto no plano
 	//Na função GOLD temos que mapear os domínios positivo e negativo. A função resultará apenas no domínio positivo
 	//O domínio negativo (-z) deve ser tratado no código
-	protected double fitness(Ponto fenotipo)
+	protected double fitness(int[] gen)
 	{
 		double a, b, z, x, y;
-	
+                double[] d = Utils.binarioPraDecimal(gen, min, max);
 		//Atribuir valores
-		x = fenotipo.x;
-		y = fenotipo.y;
+		x = d[0];
+		y = d[1];
 		
 		//Representação da função passada na especificação
-		a = 1 + Math.pow((x + y + 1), 2) * (19-14*Math.pow(x,2) - 14*y + 6*x*y + 3*Math.pow(y,2));
+		a = 1 + Math.pow((x + y + 1), 2) * (19 - 14 * x + 3 * Math.pow(x,2) - 14*y + 6*x*y + 3*Math.pow(y,2));
 		b = 30 + Math.pow((2*x - 3*y), 2) * (18 - 32*x + 12*Math.pow(x,2) + 48*y -36*x*y + 27*Math.pow(y,2));
 		z = a*b;
 		
-		return z;
+		return -z;
 	}
 	
     //Metodo main: Executa a evolucao -- Ocorre por subclasse
@@ -50,18 +50,19 @@ public class Gold extends algoritmosGeneticos.AlgoritmosGeneticos{
 		Gold gold = new Gold();
 		
 		//Passar os parametros
-                args = new String[11];
+                args = new String[12];
                 args[0] = "60";
-                args[1] = "50";
+                args[1] = "180";
                 args[2] = "0";
                 args[3] = "100";
-                args[4] = "50";
+                args[4] = "180";
                 args[5] = "0";
                 args[6] = "0.9";
                 args[7] = "0";
-                args[8] = "0.2";
+                args[8] = "0.05";
                 args[9] = "0";
                 args[10] = "0";
+                args[11] = "5";
                       
 		gold.numGenes = Integer.valueOf(args[0]);
 		gold.numIndividuos = Integer.valueOf(args[1]);
@@ -74,6 +75,7 @@ public class Gold extends algoritmosGeneticos.AlgoritmosGeneticos{
 		gold.probMutacao = Double.valueOf(args[8]);
 		gold.critTroca = Integer.valueOf(args[9]);
 		gold.elitismo = Boolean.valueOf(args[10]);
+                gold.intervaloImpressao = Integer.parseInt(args[11]);
 		
 		//Definir o intervalo de otimizacao
 		gold.min = -2;
