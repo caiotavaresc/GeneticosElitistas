@@ -1,27 +1,31 @@
 package funcoes;
-import algoritmosGeneticos.Ponto;
+import Operadores.CrossoverDoisPontos;
+import Operadores.CrossoverUmPonto;
+import Operadores.MutacaoSimples;
+import Operadores.MutacaoTroca;
+import algoritmosGeneticos.Utils;
 
-//Classe GOLD -> Mapeia o algoritmo genético para a função Rastrigin
-//Objetivo: Minimização
+//Classe GOLD -> Mapeia o algoritmo genï¿½tico para a funï¿½ï¿½o Rastrigin
+//Objetivo: Minimizaï¿½ï¿½o
 public class Rastrigin extends algoritmosGeneticos.AlgoritmosGeneticos{
 
-	//Método construtor -> Chama o construtor da classe pai
+	//Mï¿½todo construtor -> Chama o construtor da classe pai
 	Rastrigin() 
 	{
 		super();
 	}
 	
-	//Método fitness -> Função de avaliação
-	//O fenótipo de todas as funções é um ponto no plano
-	protected double fitness(Ponto fenotipo)
+	//Mï¿½todo fitness -> Funï¿½ï¿½o de avaliaï¿½ï¿½o
+	//O fenï¿½tipo de todas as funï¿½ï¿½es ï¿½ um ponto no plano
+	protected double fitness(int[] gen)
 	{
 		double zx, zy, z, x, y;
-	
+                double[] xy = Utils.binarioPraDecimal(gen, min, max);
 		//Atribuir valores
-		x = fenotipo.x;
-		y = fenotipo.y;
+		x = xy[0];
+		y = xy[1];
 		
-		//Representação da função passada na especificação
+		//Representaï¿½ï¿½o da funï¿½ï¿½o passada na especificaï¿½ï¿½o
 		zx = Math.pow(x, 2) - 10 * Math.cos(2 * Math.PI * x) + 10;
 		zy = Math.pow(y, 2) - 10 * Math.cos(2 * Math.PI * y) + 10;
 		
@@ -44,7 +48,7 @@ public class Rastrigin extends algoritmosGeneticos.AlgoritmosGeneticos{
      * 7 -> Tipo de Mutacao
      * 8 -> Probabilidade de Mutacao - entra 0.00 e 1.00
      * 9 -> Criterio de Troca de Populacao - 0 [com troca] 1 [sem troca]
-     * 10 -> Elitismo - 0 [não] 1 [sim]*/
+     * 10 -> Elitismo - 0 [nï¿½o] 1 [sim]*/
 	public static void main(String[] args) {
 		
 		Rastrigin rastr = new Rastrigin();
@@ -55,12 +59,13 @@ public class Rastrigin extends algoritmosGeneticos.AlgoritmosGeneticos{
 		rastr.critParada = Integer.valueOf(args[2]);
 		rastr.numGeracoes = Integer.valueOf(args[3]);
 		rastr.numCross = Integer.valueOf(args[4]);
-		rastr.tipoCrossover = Integer.valueOf(args[5]);
+		rastr.crossover = Integer.valueOf(args[5]) == 0? new CrossoverUmPonto() : new CrossoverDoisPontos();
 		rastr.probCrossover = Double.valueOf(args[6]);
-		rastr.tipoMutacao = Integer.valueOf(args[7]);
+		rastr.mutacao = Integer.valueOf(args[7]) == 0 ? new MutacaoSimples() : new MutacaoTroca();
 		rastr.probMutacao = Double.valueOf(args[8]);
 		rastr.critTroca = Integer.valueOf(args[9]);
 		rastr.elitismo = Boolean.valueOf(args[10]);
+                rastr.intervaloImpressao = Integer.parseInt(args[11]);
 		
 		//Definir o intervalo de otimizacao
 		rastr.min = -5;
