@@ -1,4 +1,8 @@
 package funcoes;
+import Operadores.CrossoverDoisPontos;
+import Operadores.CrossoverUmPonto;
+import Operadores.MutacaoSimples;
+import Operadores.MutacaoTroca;
 import algoritmosGeneticos.Utils;
 
 //Classe GOLD -> Mapeia o algoritmo genético para a função Gold
@@ -69,9 +73,9 @@ public class Gold extends algoritmosGeneticos.AlgoritmosGeneticos{
 		gold.critParada = Integer.valueOf(args[2]);
 		gold.numGeracoes = Integer.valueOf(args[3]);
 		gold.numCross = Integer.valueOf(args[4]);
-		gold.tipoCrossover = Integer.valueOf(args[5]);
+		gold.crossover = Integer.valueOf(args[5]) == 0? new CrossoverUmPonto() : new CrossoverDoisPontos();
 		gold.probCrossover = Double.valueOf(args[6]);
-		gold.tipoMutacao = Integer.valueOf(args[7]);
+		gold.mutacao = Integer.valueOf(args[7]) == 0 ? new MutacaoSimples() : new MutacaoTroca();
 		gold.probMutacao = Double.valueOf(args[8]);
 		gold.critTroca = Integer.valueOf(args[9]);
 		gold.elitismo = Boolean.valueOf(args[10]);
