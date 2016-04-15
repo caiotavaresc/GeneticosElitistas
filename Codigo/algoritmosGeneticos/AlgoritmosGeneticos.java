@@ -10,7 +10,12 @@ dois operadores de mutacao (mutacao simples e outro a escolha do grupo); -> 1/2 
 dois criterios de troca de populacao;
 evolucao sem eletismo e com elitismo.
  */
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 //A classe AlgoritmosGeneticos implementara a logica geral dos algoritmos geneticos
 //Sera utilizada como superclasse para especializacao dos problemas
@@ -77,6 +82,9 @@ public abstract class AlgoritmosGeneticos {
 
     //Elitismo?
     protected boolean elitismo;
+    
+    //Intervalo de impressao
+    protected int intervaloImpressao;
 
     /*-----------------| Espaco dos Metodos |-----------------*/
     //Construtor -> Por enquanto so inicializa rand
@@ -98,7 +106,7 @@ public abstract class AlgoritmosGeneticos {
             for (int j = 0; j < gen_ind_atual.length; j++) {
                 gen_ind_atual[j] = rand.nextInt(2);
             }
-            geracao.add(new Individuo(gen_ind_atual, fitness(Utils.binarioPraDecimal(gen_ind_atual, min, max))));
+            geracao.add(new Individuo(gen_ind_atual, fitness(gen_ind_atual)));
         }
     }
 
@@ -131,13 +139,13 @@ public abstract class AlgoritmosGeneticos {
     //Fitness e abstrato porque cada filho definira¡ o seu fitness
     //Recebera¡ como entrada um fenotipo e devolvera¡ uma avaliacao
     //O fenotipo de todas as funcoes e um ponto no plano
-    protected abstract double fitness(Ponto fenotipo);
+    protected abstract double fitness(int[] gen);
 
     //Calcula o fitness total da populacao
     double fitnessTotal() {
         double total = 0;
         for (Individuo ind : geracao) {
-            total += fitness(Utils.binarioPraDecimal(ind.getGenotipo(), min, max));
+            total += ind.fitness;
         }
         return total;
     }
@@ -250,8 +258,8 @@ public abstract class AlgoritmosGeneticos {
             f2[i] = pai1[i];
         }
         
-        filhos.add(new Individuo(f1, fitness(Utils.binarioPraDecimal(f1, min, max))));
-        filhos.add(new Individuo(f2, fitness(Utils.binarioPraDecimal(f2, min, max))));
+        filhos.add(new Individuo(f1, fitness(f1)));
+        filhos.add(new Individuo(f2, fitness(f2)));
 
         return filhos;
     }
@@ -299,8 +307,8 @@ public abstract class AlgoritmosGeneticos {
             f2[i] = pai2[i];
         }
 
-        filhos.add(new Individuo(f1, fitness(Utils.binarioPraDecimal(f1, min, max))));
-        filhos.add(new Individuo(f2, fitness(Utils.binarioPraDecimal(f2, min, max))));
+        filhos.add(new Individuo(f1, fitness(f1)));
+        filhos.add(new Individuo(f2, fitness(f2)));
 
         return filhos;
     }
@@ -319,7 +327,7 @@ public abstract class AlgoritmosGeneticos {
         //Escolher um elemento do alfabeto
         mutante[m] = rand.nextInt(2);
         proxFilhos.remove(indice);
-        proxFilhos.add(indice, new Individuo(mutante, fitness(Utils.binarioPraDecimal(mutante, min, max))));
+        proxFilhos.add(indice, new Individuo(mutante, fitness(mutante)));
     }
     
     //Operador de mutacao 2 -> Mutacao flip
@@ -338,7 +346,7 @@ public abstract class AlgoritmosGeneticos {
         mutante[m1] = mutante[m2];
         mutante[m2] = aux;
         proxFilhos.remove(indice);
-        proxFilhos.add(indice, new Individuo(mutante, fitness(Utils.binarioPraDecimal(mutante, min, max))));
+        proxFilhos.add(indice, new Individuo(mutante, fitness(mutante)));
     }
 
     //Teste de convergencia - Verifica se todos os individuos tem o mesmo fitness
@@ -354,9 +362,6 @@ public abstract class AlgoritmosGeneticos {
                 return false;
             }
         }
-
-        Ponto point = Utils.binarioPraDecimal(this.geracao.get(0).getGenotipo(), this.min, this.max);
-        System.out.println("X: " + point.x + " Y: " + point.y + " - Fitness: " + this.fitness(point));
 
         //Se nao achou -> Convergiu - retorna true
         return true;
@@ -380,17 +385,17 @@ public abstract class AlgoritmosGeneticos {
         int[] maximo, minimo;
         double maxFitness, minFitness;
 
-        maxFitness = minFitness = this.fitness(Utils.binarioPraDecimal(this.geracao.get(0).getGenotipo(), this.min, this.max));
+        maxFitness = minFitness = this.geracao.get(0).fitness;
         maximo = minimo = this.geracao.get(0).getGenotipo();
 
         for (int i = 1; i < this.numIndividuos; i++) {
-            if (this.fitness(Utils.binarioPraDecimal(this.geracao.get(i).getGenotipo(), this.min, this.max)) > maxFitness) {
-                maxFitness = this.fitness(Utils.binarioPraDecimal(this.geracao.get(i).getGenotipo(), this.min, this.max));
+            if (this.geracao.get(i).fitness > maxFitness) {
+                maxFitness = this.geracao.get(i).fitness;
                 maximo = this.geracao.get(i).getGenotipo();
             }
 
-            if (this.fitness(Utils.binarioPraDecimal(this.geracao.get(i).getGenotipo(), this.min, this.max)) < minFitness) {
-                minFitness = this.fitness(Utils.binarioPraDecimal(this.geracao.get(i).getGenotipo(), this.min, this.max));
+            if (this.geracao.get(i).fitness < minFitness) {
+                minFitness = this.geracao.get(i).fitness;
                 minimo = this.geracao.get(i).getGenotipo();
             }
         }
@@ -406,8 +411,19 @@ public abstract class AlgoritmosGeneticos {
 
     //Metodo Evolucao: Evoluira o algoritmo guiado pelos parametros
     protected void evolucao() {
+        
+        String relatorio;
+        relatorio = "numGenes,numIndividuos,critParada,numGeracoes,numCross,tipoCrossover,probCrossover,tipoMutacao,probMutacao,critTroca,elitismo\n";
+        System.out.println("numGenes\tnumIndividuos\tcritParada\tnumGeracoes\tnumCross\ttipoCrossover\tprobCrossover\ttipoMutacao\tprobMutacao\tcritTroca\telitismo\n"
+                +numGenes+"\t"+numIndividuos+"\t"+critParada+"\t"+numGeracoes+"\t"+numCross+"\t"+tipoCrossover+"\t"
+                +probCrossover+"\t"+tipoMutacao+"\t"+probMutacao+"\t"+critTroca+"\t"+elitismo+"\n");
+        relatorio = relatorio+numGenes+","+numIndividuos+","+critParada+","+numGeracoes+","+numCross+","+tipoCrossover+","
+                +probCrossover+","+tipoMutacao+","+probMutacao+","+critTroca+","+elitismo+"\n\n";
+        
+        relatorio = relatorio + "numGeracao,fitness da populacao: total,medio,maximo,minimo\n";
+        
+        System.out.println("numGeracao\tfitness da populacao: total\tmedio\tmaximo\tminimo");
         //Variaveis auxiliares
-        //int i;
         List<Individuo> proxFilhos;
         proxFilhos = new ArrayList();
 
@@ -415,7 +431,7 @@ public abstract class AlgoritmosGeneticos {
         this.indGeracao = 1;
 
         //Imprimir a primeira geracao
-        this.imprimeGeracao();
+        //this.imprimeGeracao();
 
         // Iniciar a Evolucao
         // A Evolucao será um while true, cujo criterio de parada definira o break
@@ -424,7 +440,9 @@ public abstract class AlgoritmosGeneticos {
             criaGeracaoRoleta();
             //Armazenar o fitness total para evitar recalculo
             this.fitnessTotal = this.fitnessTotal();
-
+            
+            relatorio = relatorio+ indGeracao+","+fitnessTotal+","+(fitnessTotal/geracao.size())+","+geracao.get(geracao.size()-1).fitness+","+geracao.get(0).fitness+"\n";
+            if(indGeracao%intervaloImpressao==1) System.out.println(indGeracao+"\t"+fitnessTotal+"\t"+(fitnessTotal/geracao.size())+"\t"+geracao.get(geracao.size()-1).fitness+"\t"+geracao.get(0).fitness);
             //A evolucao consiste em:
             //0) Ocorrerão n CrossOvers
             for (int contCross = 0; contCross < this.numCross; contCross++) {
@@ -466,10 +484,8 @@ public abstract class AlgoritmosGeneticos {
             this.indGeracao++;
             
             //A cada iteracao imprimir a geracao
-            this.imprimeGeracao();
+            //this.imprimeGeracao();
             Collections.sort(geracao);
-            System.out.println("FITNESS: U"+geracao.get(geracao.size()-1).fitness);
-            System.out.println("FITNESS: P"+geracao.get(0).fitness);
             
             //4) Parar a evolucao quando for a hora certa
             if (this.critParada == CONVERGENCIA) {
@@ -484,11 +500,36 @@ public abstract class AlgoritmosGeneticos {
                 }
             }
 
-            
             //Limpar os objetos utilizados
             proxFilhos.clear();
         }
+        System.out.println(indGeracao+"\t"+fitnessTotal+"\t"+(fitnessTotal/geracao.size())+"\t"+geracao.get(geracao.size()-1).fitness+"\t"+geracao.get(0).fitness);
+        relatorio = relatorio+ indGeracao+","+fitnessTotal+","+(fitnessTotal/geracao.size())+","+geracao.get(geracao.size()-1).fitness+","+geracao.get(0).fitness+"\n";
         
+        imprimirRelatorio(relatorio);
+    }
+    
+    public void imprimirRelatorio(String r)
+    {
+        String nome="";
+        
+        if( this instanceof funcoes.Gold)
+            nome = "Gold";
+        else if (this instanceof funcoes.Rastrigin)
+            nome = "Rastrigin";
+        else
+            nome = "Bump2";
+            
+        
+        try {
+            BufferedWriter w = new BufferedWriter(new FileWriter(nome+","+numGenes+","+numIndividuos+","+critParada+","+numGeracoes+","+numCross+","+tipoCrossover+","
+                    +probCrossover+","+tipoMutacao+","+probMutacao+","+critTroca+","+elitismo+".csv"));
+            
+            w.append(r);
+            w.close();
+        } catch (IOException ex) {
+            Logger.getLogger(AlgoritmosGeneticos.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
     
     
