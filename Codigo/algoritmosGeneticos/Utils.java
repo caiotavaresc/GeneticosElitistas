@@ -7,7 +7,7 @@ public class Utils {
 	//binarioPraDecimal -> Recebe como entrada um array de int que representa um ponto no plano e retorna o ponto
 	//Essa e a funcao de mapeamento que mapeiao genotipo em fenotipo
 	//entrada e o genoma, min e max sao as definicoes do intervalo (dependentes da funcao).
-	static Ponto binarioPraDecimal(int[] entrada, int min, int max)
+	public static double[] binarioPraDecimal(int[] entrada, int min, int max)
 	{
             double x = 0, y = 0;
             for(int i =0; i < entrada.length/2; i++)
@@ -19,6 +19,6 @@ public class Utils {
             x = min + x*((max-min)/(Math.pow(2, entrada.length/2)-1));
             y = min + y*((max-min)/(Math.pow(2, entrada.length/2)-1));
             
-            return new Ponto(x, y);
+            return new double[]{x,y};
 	}
 }
