@@ -1,26 +1,30 @@
 package algoritmosGeneticos;
 
-/* REQUISITOS BASICOS DO TRABALHO
-uso de dois diferentes tamanhos de populacao, de grandezes bem diferentes; 
-dois criterios de parada;
-para a parte I - cromossomo com codificacao binaria; -> FEITO E NAO TESTADO
-um operador de selecao (preferencialmente roleta); -> FEITO E NAO TESTADO
-dois operadores de crossover (crossover de um ponto e outro a escolha do grupo); -> FEITO E NAO TESTADO
-dois operadores de mutacao (mutacao simples e outro a escolha do grupo); -> 1/2 E NAO TESTADO
-dois criterios de troca de populacao;
-evolucao sem eletismo e com elitismo.
- */
+
+import Operadores.Crossover;
+import Operadores.Individuo;
+import Operadores.Mutacao;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-//A classe AlgoritmosGeneticos implementara a logica geral dos algoritmos geneticos
-//Sera utilizada como superclasse para especializacao dos problemas
-public abstract class AlgoritmosGeneticos {
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
 
+/**
+ *
+ * @author sousa
+ */
+public abstract class AlgoritmosGeneticos {
     /*-----------------| Espaco dos Atributos |-----------------*/
     //geracao -> Lista de elementos da geracao atual da populacao
     //Cada elemento devera¡ mapear o valor x e o valor y do ponto em binario
@@ -57,10 +61,8 @@ public abstract class AlgoritmosGeneticos {
     //Numero de genes por individuo
     protected int numGenes;
 
-    //Tipo de Cross-Over
-    protected int tipoCrossover;
-    private static final int CROSS1PONTO = 0;
-    private static final int CROSS2PONTOS = 1;
+    //Operador de crossover
+    protected Crossover crossover;
 
     //Numero de Crossovers que ocorrerao por ciclo evolutivo
     protected int numCross;
@@ -68,9 +70,8 @@ public abstract class AlgoritmosGeneticos {
     //Probabilidade de ocorrer Crossover
     protected double probCrossover;
 
-    //Tipo de Mutacao
-    protected int tipoMutacao;
-    private static final int MUTACAOTRAD = 0;
+    //Operador mutacao
+    protected Mutacao mutacao;
 
     //Probabilidade de mutacao
     protected double probMutacao;
@@ -85,13 +86,28 @@ public abstract class AlgoritmosGeneticos {
     
     //Intervalo de impressao
     protected int intervaloImpressao;
-
+    
+    
     /*-----------------| Espaco dos Metodos |-----------------*/
     //Construtor -> Por enquanto so inicializa rand
     protected AlgoritmosGeneticos() {
         this.rand = new Random();
     }
-
+    
+    //Fitness e abstrato porque cada filho definira¡ o seu fitness
+    //Recebera¡ como entrada um fenotipo e devolvera¡ uma avaliacao
+    //O fenotipo de todas as funcoes e um ponto no plano
+    protected abstract double fitness(int[] genotipo);
+    
+    //Calcula o fitness total da populacao
+    double fitnessTotal() {
+        double total = 0;
+        for (Individuo ind : geracao) {
+            total += ind.fitness;
+        }
+        return total;
+    }
+    
     //geradorInicial -> Cria a primeira geracao - Supoe que o alfabeto e {0,1}
     //Recebe como parametro o numero de individuos que serao criados na geracao
     void geradorInicial() {
@@ -109,47 +125,9 @@ public abstract class AlgoritmosGeneticos {
             geracao.add(new Individuo(gen_ind_atual, fitness(gen_ind_atual)));
         }
     }
-
-    //imprimeGeracao -> imprime os elementos da geracao atual
-    //Depois podemos definir algo para separar mantissa e expoente na representacao decimal.
-    void imprimeGeracao() {
-        Iterator<Individuo> i;
-        Individuo temp;
-        int j, k;
-
-        i = this.geracao.iterator();
-        k = 0;
-        System.out.println("GERACAO: "+indGeracao);
-        //Navegar nos elementos
-        while (i.hasNext()) {
-            temp = i.next();
-
-            System.out.print("Individuo " + k++ + ": ");
-            int [] genotipo = temp.getGenotipo();
-            //Imprimir o individuo
-            for (j = 0; j < genotipo.length; j++) {
-                System.out.print(genotipo[j]);
-            }
-            System.out.print(" Fit: "+temp.fitness+"\n");
-        }
-
-        System.out.println("");
-    }
-
-    //Fitness e abstrato porque cada filho definira¡ o seu fitness
-    //Recebera¡ como entrada um fenotipo e devolvera¡ uma avaliacao
-    //O fenotipo de todas as funcoes e um ponto no plano
-    protected abstract double fitness(int[] gen);
-
-    //Calcula o fitness total da populacao
-    double fitnessTotal() {
-        double total = 0;
-        for (Individuo ind : geracao) {
-            total += ind.fitness;
-        }
-        return total;
-    }
     
+    
+    //Adapta a geracao para que os fitness negativos nao impecam o funcionamento da roleta
     void criaGeracaoRoleta()
     {
         geracaoRoleta = new ArrayList<Individuo>();
@@ -183,7 +161,6 @@ public abstract class AlgoritmosGeneticos {
         Collections.shuffle(geracaoRoleta);
     }
     
-    
     //Metodo de selecao 1 -> giro de roleta
     //Sorteia dois  numeros i,j no intervalo [0, fitness total da populacao]
     //Escolhe os dois individuos no qual o i e j esta em seu intervalo/fatia
@@ -215,7 +192,8 @@ public abstract class AlgoritmosGeneticos {
         } while (escolhido2 == escolhido);//Para garantir que nao escolhemos dois iguais
         return new Individuo[]{ind1, ind2};
     }
-
+    
+    //Fitness total adaptado para nao causar problemas ao operador roleta
     double fitnessTotalRoleta(int fator, double shift) {
         double total = 0;
         if (shift < 0) {
@@ -229,126 +207,7 @@ public abstract class AlgoritmosGeneticos {
         }
         return total;
     }
-
-    //Operador de cruzamento 1 -> cruzamento de um ponto
-    //Escolhe dois individuos a e b da populacao
-    //Sorteia uma posicao i, pega de 0 a i do a e de i ao final de b e vice-versa
-    //Criando dois novos individuos
-    List<Individuo> crossover1px() {
-        List<Individuo> filhos = new ArrayList();
-        Individuo[] escolhidos = roleta();
-
-        
-        int[] pai1 = escolhidos[0].getGenotipo();
-        int[] pai2 = escolhidos[1].getGenotipo();
-        
-        int p = rand.nextInt(pai1.length - 1)+1;
-
-        int[] f1 = new int[pai1.length];
-        int[] f2 = new int[pai1.length];
-
-        int i;
-        for (i = 0; i < p; i++) {
-            f1[i] = pai1[i];
-            f2[i] = pai2[i];
-        }
-
-        for (i = p; i < f1.length; i++) {
-            f1[i] = pai2[i];
-            f2[i] = pai1[i];
-        }
-        
-        filhos.add(new Individuo(f1, fitness(f1)));
-        filhos.add(new Individuo(f2, fitness(f2)));
-
-        return filhos;
-    }
-
-    //Operador de cruzamento 2 -> cruzamento de dois ponto
-    //Escolhe dois individuos a e b da populacao
-    //Sorteia uma posicao p1 e uma p2, garante que p1 seja < p2.
-    //Cria dois individuos, 
-    //sendo um deles da posicao 0 a p1 igual o pai 1, da p1 ate a p2 igual o pai 2 e da p2 ate o final igual o pai 1
-    //O segundo filho e o inverso, [pai2|pai1|pai2]
-    //Criando dois novos individuos
-    List<Individuo> crossover2px() {
-        List<Individuo> filhos = new ArrayList();
-        Individuo[] escolhidos = roleta();
-
-        int[] pai1 = escolhidos[0].getGenotipo();
-        int[] pai2 = escolhidos[1].getGenotipo();
-
-        int p1 = rand.nextInt(pai1.length - 1)+1;
-        int p2 = rand.nextInt(pai1.length - 1)+1;
-        while (p2 <= p1) {
-            if (p2 < p1) {
-                int aux = p1;
-                p1 = p2;
-                p2 = aux;
-            } else if (p2 == p1) {
-                p1 = rand.nextInt(pai1.length - 1);
-                p2 = rand.nextInt(pai1.length - 1);
-            }
-        }
-
-        int[] f1 = new int[pai1.length];
-        int[] f2 = new int[pai1.length];
-
-        for (int i = 0; i < p1; i++) {
-            f1[i] = pai1[i];
-            f2[i] = pai2[i];
-        }
-        for (int i = p1; i < p2; i++) {
-            f1[i] = pai2[i];
-            f2[i] = pai1[i];
-        }
-        for (int i = p2; i < pai1.length; i++) {
-            f1[i] = pai1[i];
-            f2[i] = pai2[i];
-        }
-
-        filhos.add(new Individuo(f1, fitness(f1)));
-        filhos.add(new Individuo(f2, fitness(f2)));
-
-        return filhos;
-    }
-
-    //Operador de mutacao 1 -> Mutacao simples
-    void mutacaoSimples(List<Individuo> proxFilhos) {
-        int indice;
-
-        //Escolher um individuo
-        indice = this.rand.nextInt(proxFilhos.size());
-        int[] mutante = proxFilhos.get(indice).getGenotipo();
-
-        //Escolher um gene
-        int m = rand.nextInt(mutante.length);
-
-        //Escolher um elemento do alfabeto
-        mutante[m] = rand.nextInt(2);
-        proxFilhos.remove(indice);
-        proxFilhos.add(indice, new Individuo(mutante, fitness(mutante)));
-    }
     
-    //Operador de mutacao 2 -> Mutacao flip
-    void mutacaoFlip(List<Individuo> proxFilhos) {
-        int indice;
-
-        //Escolher um individuo
-        indice = this.rand.nextInt(proxFilhos.size());
-        int[] mutante = proxFilhos.get(indice).getGenotipo();
-        //Escolher um gene
-        int m1 = rand.nextInt(mutante.length);
-        int m2 = rand.nextInt(mutante.length);
-
-        //Escolher um elemento do alfabeto
-        int aux = mutante[m1];
-        mutante[m1] = mutante[m2];
-        mutante[m2] = aux;
-        proxFilhos.remove(indice);
-        proxFilhos.add(indice, new Individuo(mutante, fitness(mutante)));
-    }
-
     //Teste de convergencia - Verifica se todos os individuos tem o mesmo fitness
     boolean convergiu() {
         double firstFitness;
@@ -362,11 +221,10 @@ public abstract class AlgoritmosGeneticos {
                 return false;
             }
         }
-
         //Se nao achou -> Convergiu - retorna true
         return true;
     }
-
+    
     //Operador de troca de populacao Melhores dentre os filhos
     //Esse operador esta funcionando para problemas de maximizacao -> Deve ser adaptado para minimizacao
     List<Individuo> melhoresFilhos(List<Individuo> proxFilhos) {
@@ -379,7 +237,7 @@ public abstract class AlgoritmosGeneticos {
         
         return melhoresFilhos;
     }
-
+    
     //Metodo que retorna o individuo mais bem adaptado da geracao atual
     Individuo getBetter() {
         int[] maximo, minimo;
@@ -408,17 +266,17 @@ public abstract class AlgoritmosGeneticos {
             return new Individuo(maximo, maxFitness);
         }
     }
-
+    
     //Metodo Evolucao: Evoluira o algoritmo guiado pelos parametros
     protected void evolucao() {
         
         String relatorio;
         relatorio = "numGenes,numIndividuos,critParada,numGeracoes,numCross,tipoCrossover,probCrossover,tipoMutacao,probMutacao,critTroca,elitismo\n";
         System.out.println("numGenes\tnumIndividuos\tcritParada\tnumGeracoes\tnumCross\ttipoCrossover\tprobCrossover\ttipoMutacao\tprobMutacao\tcritTroca\telitismo\n"
-                +numGenes+"\t"+numIndividuos+"\t"+critParada+"\t"+numGeracoes+"\t"+numCross+"\t"+tipoCrossover+"\t"
-                +probCrossover+"\t"+tipoMutacao+"\t"+probMutacao+"\t"+critTroca+"\t"+elitismo+"\n");
-        relatorio = relatorio+numGenes+","+numIndividuos+","+critParada+","+numGeracoes+","+numCross+","+tipoCrossover+","
-                +probCrossover+","+tipoMutacao+","+probMutacao+","+critTroca+","+elitismo+"\n\n";
+                +numGenes+"\t"+numIndividuos+"\t"+critParada+"\t"+numGeracoes+"\t"+numCross+"\t"+crossover+"\t"
+                +probCrossover+"\t"+mutacao+"\t"+probMutacao+"\t"+critTroca+"\t"+elitismo+"\n");
+        relatorio = relatorio+numGenes+","+numIndividuos+","+critParada+","+numGeracoes+","+numCross+","+crossover+","
+                +probCrossover+","+mutacao+","+probMutacao+","+critTroca+","+elitismo+"\n\n";
         
         relatorio = relatorio + "numGeracao,fitness da populacao: total,medio,maximo,minimo\n";
         
@@ -450,21 +308,24 @@ public abstract class AlgoritmosGeneticos {
                 //1) Dada um probabilidade de ocorrer o crossOver
                 if (this.rand.nextDouble() <= this.probCrossover) {
                     //a) Selecionar os pais
+                    Individuo[] pais = roleta();
                     //b) Efetuar o cruzamento e gerar os filhos
-                    if (this.tipoCrossover == CROSS1PONTO) {
-                        proxFilhos.addAll(this.crossover1px());
-                    } else if (this.tipoCrossover == CROSS2PONTOS) {
-                        proxFilhos.addAll(this.crossover2px());
-                    }
+                    int[][] filhos = crossover.executar(pais[0].getGenotipo(), pais[1].getGenotipo());
+                    
+                    proxFilhos.add(new Individuo(filhos[0], fitness(filhos[0])));
+                    proxFilhos.add(new Individuo(filhos[1], fitness(filhos[1])));
                 }
             }
 
             //2) Dada uma probabilidade de ocorrer a mutacao
             if (this.rand.nextDouble() <= this.probMutacao && proxFilhos.size() > 0) {
+               
+                int indice = rand.nextInt(proxFilhos.size());
                 //Efetuar a mutacao
-                if (this.tipoMutacao == MUTACAOTRAD) {
-                    this.mutacaoSimples(proxFilhos);
-                }
+                int[] mutante = mutacao.executar(proxFilhos.get(indice).getGenotipo());
+                proxFilhos.remove(indice);
+                proxFilhos.add(indice, new Individuo(mutante, fitness(mutante)));
+                
             }
 
             //3) Selecionar os melhores filhos para compor a proxima geracao
@@ -509,6 +370,7 @@ public abstract class AlgoritmosGeneticos {
         imprimirRelatorio(relatorio);
     }
     
+    
     public void imprimirRelatorio(String r)
     {
         String nome="";
@@ -522,8 +384,8 @@ public abstract class AlgoritmosGeneticos {
             
         
         try {
-            BufferedWriter w = new BufferedWriter(new FileWriter(nome+","+numGenes+","+numIndividuos+","+critParada+","+numGeracoes+","+numCross+","+tipoCrossover+","
-                    +probCrossover+","+tipoMutacao+","+probMutacao+","+critTroca+","+elitismo+".csv"));
+            BufferedWriter w = new BufferedWriter(new FileWriter(nome+","+numGenes+","+numIndividuos+","+critParada+","+numGeracoes+","+numCross+","+crossover+","
+                    +probCrossover+","+mutacao+","+probMutacao+","+critTroca+","+elitismo+".csv"));
             
             w.append(r);
             w.close();
@@ -531,6 +393,7 @@ public abstract class AlgoritmosGeneticos {
             Logger.getLogger(AlgoritmosGeneticos.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
+    
     
     
 }
