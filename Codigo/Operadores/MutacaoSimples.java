@@ -19,7 +19,7 @@ public class MutacaoSimples extends Mutacao{
     
     public String toString()
     {
-        return "Mutacao Simples";
+        return "0";
     }
 
     @Override
