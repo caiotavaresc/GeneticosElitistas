@@ -7,10 +7,10 @@ import algoritmosGeneticos.Utils;
 
 //Classe GOLD -> Mapeia o algoritmo genético para a função Gold
 //Objetivo: Minimização
-public class Gold extends algoritmosGeneticos.AlgoritmosGeneticos{
+public class Gold1 extends algoritmosGeneticos.AlgoritmosGeneticos{
 
 	//Método construtor -> Chama o construtor da classe pai
-	Gold() 
+	Gold1() 
 	{
 		super();
 	}
@@ -51,28 +51,28 @@ public class Gold extends algoritmosGeneticos.AlgoritmosGeneticos{
      * 10 -> Elitismo - 0 [não] 1 [sim]*/
 	public static void main(String[] args) {
 		
-		Gold gold = new Gold();
+		Gold1 gold = new Gold1();
 		
 		//Passar os parametros
-                args = new String[12];
-                args[0] = "60";
-                args[1] = "180";
+                /*args = new String[12];
+                args[0] = "50";
+                args[1] = "200";
                 args[2] = "0";
                 args[3] = "100";
-                args[4] = "180";
+                args[4] = "0.75";
                 args[5] = "0";
                 args[6] = "0.9";
                 args[7] = "0";
                 args[8] = "0.05";
                 args[9] = "0";
                 args[10] = "0";
-                args[11] = "5";
+                args[11] = "5";*/
                       
 		gold.numGenes = Integer.valueOf(args[0]);
 		gold.numIndividuos = Integer.valueOf(args[1]);
 		gold.critParada = Integer.valueOf(args[2]);
 		gold.numGeracoes = Integer.valueOf(args[3]);
-		gold.numCross = Integer.valueOf(args[4]);
+		gold.numCross = (int)(Double.valueOf(args[4])*gold.numIndividuos);
 		gold.crossover = Integer.valueOf(args[5]) == 0? new CrossoverUmPonto() : new CrossoverDoisPontos();
 		gold.probCrossover = Double.valueOf(args[6]);
 		gold.mutacao = Integer.valueOf(args[7]) == 0 ? new MutacaoSimples() : new MutacaoTroca();
