@@ -2,7 +2,6 @@ package algoritmosGeneticos;
 
 
 import Operadores.Crossover;
-import Operadores.Individuo;
 import Operadores.Mutacao;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
@@ -180,7 +179,7 @@ public abstract class AlgoritmosGeneticos {
         }
 
         int escolhido2 = 0;
-
+        //int repeticoes = 0;
         do {
             g1 = (rand.nextDouble()); //Numero da roleta para segunda escolha
             for (int j = 0; g1 > 0 && j < geracao.size(); j++) {
@@ -189,7 +188,10 @@ public abstract class AlgoritmosGeneticos {
                 g1 -= x;
                 escolhido2 = j;
             }
+            //repeticoes++;
         } while (escolhido2 == escolhido);//Para garantir que nao escolhemos dois iguais
+        //OLHAMOS ISSO -> RELATORIO
+        //System.out.println("ROLETA: " + repeticoes + " PAI1 " + fitness(geracaoRoleta.get(escolhido).getGenotipo()) + " PAI2 "+ fitness(geracaoRoleta.get(escolhido2).getGenotipo()));
         return new Individuo[]{ind1, ind2};
     }
     
@@ -270,11 +272,12 @@ public abstract class AlgoritmosGeneticos {
     //Metodo Evolucao: Evoluira o algoritmo guiado pelos parametros
     protected void evolucao() {
         
-        String relatorio;
-        relatorio = "numGenes,numIndividuos,critParada,numGeracoes,numCross,tipoCrossover,probCrossover,tipoMutacao,probMutacao,critTroca,elitismo\n";
+        String relatorio ="";
+        relatorio = relatorio + "numGenes,numIndividuos,critParada,numGeracoes,numCross,tipoCrossover,probCrossover,tipoMutacao,probMutacao,critTroca,elitismo\n";
         System.out.println("numGenes\tnumIndividuos\tcritParada\tnumGeracoes\tnumCross\ttipoCrossover\tprobCrossover\ttipoMutacao\tprobMutacao\tcritTroca\telitismo\n"
                 +numGenes+"\t"+numIndividuos+"\t"+critParada+"\t"+numGeracoes+"\t"+numCross+"\t"+crossover+"\t"
                 +probCrossover+"\t"+mutacao+"\t"+probMutacao+"\t"+critTroca+"\t"+elitismo+"\n");
+        relatorio = relatorio + ((this instanceof funcoes.Gold1)? "Gold-," : (this instanceof funcoes.Bump2)? "Bump2,": (this instanceof funcoes.Gold2)? "Gold+,": "Rastrigin")+",";
         relatorio = relatorio+numGenes+","+numIndividuos+","+critParada+","+numGeracoes+","+numCross+","+crossover+","
                 +probCrossover+","+mutacao+","+probMutacao+","+critTroca+","+elitismo+"\n\n";
         
@@ -375,14 +378,15 @@ public abstract class AlgoritmosGeneticos {
     {
         String nome="";
         
-        if( this instanceof funcoes.Gold)
-            nome = "Gold";
+        if( this instanceof funcoes.Gold1)
+            nome = "Gold-";
         else if (this instanceof funcoes.Rastrigin)
             nome = "Rastrigin";
-        else
+        else if(this instanceof funcoes.Bump2)
             nome = "Bump2";
-            
-        
+        else
+            nome = "Gold+";
+           
         try {
             BufferedWriter w = new BufferedWriter(new FileWriter(nome+","+numGenes+","+numIndividuos+","+critParada+","+numGeracoes+","+numCross+","+crossover+","
                     +probCrossover+","+mutacao+","+probMutacao+","+critTroca+","+elitismo+".csv"));
