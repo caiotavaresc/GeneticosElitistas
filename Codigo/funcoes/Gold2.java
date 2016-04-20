@@ -54,25 +54,25 @@ public class Gold2 extends algoritmosGeneticos.AlgoritmosGeneticos{
 		Gold2 gold = new Gold2();
 		
 		//Passar os parametros
-                args = new String[12];
+                /*args = new String[12];
                 args[0] = "50";
                 args[1] = "200";
-                args[2] = "1";
+                args[2] = "0";
                 args[3] = "100";
-                args[4] = "200";
+                args[4] = "0.75";
                 args[5] = "0";
                 args[6] = "0.9";
                 args[7] = "0";
                 args[8] = "0.05";
                 args[9] = "0";
                 args[10] = "0";
-                args[11] = "5";
+                args[11] = "5";*/
                       
 		gold.numGenes = Integer.valueOf(args[0]);
 		gold.numIndividuos = Integer.valueOf(args[1]);
 		gold.critParada = Integer.valueOf(args[2]);
 		gold.numGeracoes = Integer.valueOf(args[3]);
-		gold.numCross = Integer.valueOf(args[4]);
+		gold.numCross = (int)(Double.valueOf(args[4])*gold.numIndividuos);
 		gold.crossover = Integer.valueOf(args[5]) == 0? new CrossoverUmPonto() : new CrossoverDoisPontos();
 		gold.probCrossover = Double.valueOf(args[6]);
 		gold.mutacao = Integer.valueOf(args[7]) == 0 ? new MutacaoSimples() : new MutacaoTroca();
