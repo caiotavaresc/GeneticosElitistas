@@ -233,9 +233,20 @@ public abstract class AlgoritmosGeneticos {
         List<Individuo> melhoresFilhos;
         Collections.sort(proxFilhos);
         if(tipoFun == MAXIMIZACAO)
-            melhoresFilhos = proxFilhos.subList(proxFilhos.size()-numIndividuos, proxFilhos.size());
-        else
-            melhoresFilhos = proxFilhos.subList(0, numIndividuos);
+            if(proxFilhos.size() < numIndividuos){
+                melhoresFilhos = proxFilhos;
+                melhoresFilhos.addAll(geracao.subList(geracao.size() - (numIndividuos - proxFilhos.size()), geracao.size()));
+            }
+            else
+                melhoresFilhos = proxFilhos.subList(proxFilhos.size()-numIndividuos, proxFilhos.size());
+        else{
+            if(proxFilhos.size() < numIndividuos){
+                melhoresFilhos = proxFilhos;
+                melhoresFilhos.addAll(geracao.subList(0, numIndividuos - proxFilhos.size()+1));
+            }
+            else
+                melhoresFilhos = proxFilhos.subList(0, numIndividuos);
+        }
         
         return melhoresFilhos;
     }
@@ -274,16 +285,16 @@ public abstract class AlgoritmosGeneticos {
         
         String relatorio ="";
         relatorio = relatorio + "numGenes,numIndividuos,critParada,numGeracoes,numCross,tipoCrossover,probCrossover,tipoMutacao,probMutacao,critTroca,elitismo\n";
-        System.out.println("numGenes\tnumIndividuos\tcritParada\tnumGeracoes\tnumCross\ttipoCrossover\tprobCrossover\ttipoMutacao\tprobMutacao\tcritTroca\telitismo\n"
-                +numGenes+"\t"+numIndividuos+"\t"+critParada+"\t"+numGeracoes+"\t"+numCross+"\t"+crossover+"\t"
-                +probCrossover+"\t"+mutacao+"\t"+probMutacao+"\t"+critTroca+"\t"+elitismo+"\n");
+        //System.out.println("numGenes\tnumIndividuos\tcritParada\tnumGeracoes\tnumCross\ttipoCrossover\tprobCrossover\ttipoMutacao\tprobMutacao\tcritTroca\telitismo\n"
+        //        +numGenes+"\t"+numIndividuos+"\t"+critParada+"\t"+numGeracoes+"\t"+numCross+"\t"+crossover+"\t"
+        //        +probCrossover+"\t"+mutacao+"\t"+probMutacao+"\t"+critTroca+"\t"+elitismo+"\n");
         relatorio = relatorio + ((this instanceof funcoes.Gold1)? "Gold-," : (this instanceof funcoes.Bump2)? "Bump2,": (this instanceof funcoes.Gold2)? "Gold+,": "Rastrigin")+",";
         relatorio = relatorio+numGenes+","+numIndividuos+","+critParada+","+numGeracoes+","+numCross+","+crossover+","
                 +probCrossover+","+mutacao+","+probMutacao+","+critTroca+","+elitismo+"\n\n";
         
         relatorio = relatorio + "numGeracao,fitness da populacao: total,medio,maximo,minimo\n";
         
-        System.out.println("numGeracao\tfitness da populacao: total\tmedio\tmaximo\tminimo");
+        //System.out.println("numGeracao\tfitness da populacao: total\tmedio\tmaximo\tminimo");
         //Variaveis auxiliares
         List<Individuo> proxFilhos;
         proxFilhos = new ArrayList();
@@ -367,7 +378,7 @@ public abstract class AlgoritmosGeneticos {
             //Limpar os objetos utilizados
             proxFilhos.clear();
         }
-        System.out.println(indGeracao+"\t"+fitnessTotal+"\t"+(fitnessTotal/geracao.size())+"\t"+geracao.get(geracao.size()-1).fitness+"\t"+geracao.get(0).fitness);
+        //System.out.println(indGeracao+"\t"+fitnessTotal+"\t"+(fitnessTotal/geracao.size())+"\t"+geracao.get(geracao.size()-1).fitness+"\t"+geracao.get(0).fitness);
         relatorio = relatorio+ indGeracao+","+fitnessTotal+","+(fitnessTotal/geracao.size())+","+geracao.get(geracao.size()-1).fitness+","+geracao.get(0).fitness+"\n";
         
         imprimirRelatorio(relatorio);
