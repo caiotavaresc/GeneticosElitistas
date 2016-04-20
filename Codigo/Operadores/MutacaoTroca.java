@@ -19,7 +19,7 @@ public class MutacaoTroca extends Mutacao{
     
     public String toString()
     {
-        return "Mutacao Troca";
+        return "1";
     }
 
     @Override
