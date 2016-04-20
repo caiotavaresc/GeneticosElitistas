@@ -52,8 +52,11 @@ public class Parametrizacao {
                                                 for(int p = 0; p < param7.length; p++)
                                                     for(int q = 0; q < param8.length; q++)
                                                         for(int r = 0; r < param9.length; r++)
-                                                            for(int s = 0; s < param10.length; s++)
-                                                                comandos.add("java funcoes." + nomeDaFuncao + " " + param0[i] + " " + param1[j] + " " + param2[k] + " " + param3[l] + " " + (param4[m]) + " " + param5[n] + " " + param6[o] + " " + param7[p] + " " + param8[q] + " " + param9[r] + " " + param10[s] + " " + param11);
+                                                            if(param9[r].equals("1"))                                                            
+                                                                comandos.add("java funcoes." + nomeDaFuncao + " " + param0[i] + " " + param1[j] + " " + param2[k] + " " + param3[l] + " " + (param4[m]) + " " + param5[n] + " " + param6[o] + " " + param7[p] + " " + param8[q] + " " + param9[r] + " " + param10[0] + " " + param11);
+                                                            else
+                                                                for(int s = 0; s < param10.length; s++)
+                                                                    comandos.add("java funcoes." + nomeDaFuncao + " " + param0[i] + " " + param1[j] + " " + param2[k] + " " + param3[l] + " " + (param4[m]) + " " + param5[n] + " " + param6[o] + " " + param7[p] + " " + param8[q] + " " + param9[r] + " " + param10[s] + " " + param11);
                             else
                                 for(int m = 0; m < param4.length; m++)
                                         for(int n = 0; n < param5.length; n++)
@@ -61,15 +64,18 @@ public class Parametrizacao {
                                                 for(int p = 0; p < param7.length; p++)
                                                     for(int q = 0; q < param8.length; q++)
                                                         for(int r = 0; r < param9.length; r++)
-                                                            for(int s = 0; s < param10.length; s++)
-                                                                comandos.add("java funcoes." + nomeDaFuncao + " " + param0[i] + " " + param1[j] + " " + param2[k] + " " + param3[0] + " " + param4[m] + " " + param5[n] + " " + param6[o] + " " + param7[p] + " " + param8[q] + " " + param9[r] + " " + param10[s] + " " + param11);
+                                                            if(param9[r].equals("1"))
+                                                                comandos.add("java funcoes." + nomeDaFuncao + " " + param0[i] + " " + param1[j] + " " + param2[k] + " " + param3[0] + " " + param4[m] + " " + param5[n] + " " + param6[o] + " " + param7[p] + " " + param8[q] + " " + param9[r] + " " + param10[0] + " " + param11);
+                                                            else
+                                                                for(int s = 0; s < param10.length; s++)
+                                                                    comandos.add("java funcoes." + nomeDaFuncao + " " + param0[i] + " " + param1[j] + " " + param2[k] + " " + param3[0] + " " + param4[m] + " " + param5[n] + " " + param6[o] + " " + param7[p] + " " + param8[q] + " " + param9[r] + " " + param10[s] + " " + param11);
 		
 		
 		
 		//Comando que eh executado no prompt
 		//String [] cmd = {"java funcoes." + nomeDaFuncao + " " + param0 + " " + param1 + " " + param2 + " " + param3 + " " + param4 + " " + param5 + " " + param6 + " " + param7 + " " + param8 + " " + param9 + " " + param10 + " " + param11};
 		int execucao = 0;
-                for(execucao = 5993; execucao< comandos.size(); execucao++)
+                for(execucao = 6480; execucao< comandos.size(); execucao++)
                     try{
                         System.out.println("EXECUCAO "+ execucao+"\n"+comandos.get(execucao));
                     	run (comandos.get(execucao), Diretorio); //Chama a classe que realiza efetivamente o comando
