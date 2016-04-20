@@ -25,7 +25,7 @@ public class CrossoverUmPonto extends Crossover {
     @Override
     public String toString()
     {
-        return "Crossover de um ponto";
+        return "1";
     }
     
     //Operador de cruzamento 1 -> cruzamento de um ponto
