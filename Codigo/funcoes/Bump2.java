@@ -5,6 +5,10 @@
  */
 package funcoes;
 
+import Operadores.CrossoverDoisPontos;
+import Operadores.CrossoverUmPonto;
+import Operadores.MutacaoSimples;
+import Operadores.MutacaoTroca;
 import algoritmosGeneticos.Utils;
 
 /**
@@ -35,6 +39,49 @@ public class Bump2 extends algoritmosGeneticos.AlgoritmosGeneticos{
         
         return z;
     }
+    
+    public static void main(String[] args) {
+		
+		Bump2 bmp = new Bump2();
+		
+		/*Passar os parametros
+                args = new String[12];
+                args[0] = "50";
+                args[1] = "20000";
+                args[2] = "0";
+                args[3] = "100";
+                args[4] = "20000";
+                args[5] = "0";
+                args[6] = "0.9";
+                args[7] = "0";
+                args[8] = "0.05";
+                args[9] = "0";
+                args[10] = "0";
+                args[11] = "5";*/
+                      
+		bmp.numGenes = Integer.valueOf(args[0]);
+		bmp.numIndividuos = Integer.valueOf(args[1]);
+		bmp.critParada = Integer.valueOf(args[2]);
+		bmp.numGeracoes = Integer.valueOf(args[3]);
+		bmp.numCross = (int)(Double.valueOf(args[4])*bmp.numIndividuos);
+		bmp.crossover = Integer.valueOf(args[5]) == 0? new CrossoverUmPonto() : new CrossoverDoisPontos();
+		bmp.probCrossover = Double.valueOf(args[6]);
+		bmp.mutacao = Integer.valueOf(args[7]) == 0 ? new MutacaoSimples() : new MutacaoTroca();
+		bmp.probMutacao = Double.valueOf(args[8]);
+		bmp.critTroca = Integer.valueOf(args[9]);
+		bmp.elitismo = Boolean.valueOf(args[10]);
+                bmp.intervaloImpressao = Integer.parseInt(args[11]);
+		
+		//Definir o intervalo de otimizacao
+		bmp.min = 0;
+		bmp.max = 10;
+		
+		//Definir a natureza do problema
+		bmp.tipoFun = MINIMIZACAO;
+		
+		//Mandar evoluir
+		bmp.evolucao();
+	}
     
     
 }
