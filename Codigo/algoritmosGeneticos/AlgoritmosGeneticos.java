@@ -282,7 +282,7 @@ public abstract class AlgoritmosGeneticos {
     
     //Metodo Evolucao: Evoluira o algoritmo guiado pelos parametros
     protected void evolucao() {
-        
+        boolean convergiu = true;
         String relatorio ="";
         relatorio = relatorio + "numGenes,numIndividuos,critParada,numGeracoes,numCross,tipoCrossover,probCrossover,tipoMutacao,probMutacao,critTroca,elitismo\n";
         //System.out.println("numGenes\tnumIndividuos\tcritParada\tnumGeracoes\tnumCross\ttipoCrossover\tprobCrossover\ttipoMutacao\tprobMutacao\tcritTroca\telitismo\n"
@@ -314,7 +314,7 @@ public abstract class AlgoritmosGeneticos {
             this.fitnessTotal = this.fitnessTotal();
             
             relatorio = relatorio+ indGeracao+","+fitnessTotal+","+(fitnessTotal/geracao.size())+","+geracao.get(geracao.size()-1).fitness+","+geracao.get(0).fitness+"\n";
-            if(indGeracao%intervaloImpressao==1) System.out.println(indGeracao+"\t"+fitnessTotal+"\t"+(fitnessTotal/geracao.size())+"\t"+geracao.get(geracao.size()-1).fitness+"\t"+geracao.get(0).fitness);
+           // if(indGeracao%intervaloImpressao==1) System.out.println(indGeracao+"\t"+fitnessTotal+"\t"+(fitnessTotal/geracao.size())+"\t"+geracao.get(geracao.size()-1).fitness+"\t"+geracao.get(0).fitness);
             //A evolucao consiste em:
             //0) Ocorrerão n CrossOvers
             for (int contCross = 0; contCross < this.numCross; contCross++) {
@@ -355,8 +355,15 @@ public abstract class AlgoritmosGeneticos {
             copiaFilhos.addAll(proxFilhos);
             this.geracao = this.melhoresFilhos(copiaFilhos);
 
+            
             //Incrementar a geracao
             this.indGeracao++;
+            if(indGeracao==10000)
+            {
+                convergiu = false;
+                System.out.println("NAO CONVERGIU");
+                break;
+            }
             
             //A cada iteracao imprimir a geracao
             //this.imprimeGeracao();
@@ -380,7 +387,7 @@ public abstract class AlgoritmosGeneticos {
         }
         //System.out.println(indGeracao+"\t"+fitnessTotal+"\t"+(fitnessTotal/geracao.size())+"\t"+geracao.get(geracao.size()-1).fitness+"\t"+geracao.get(0).fitness);
         relatorio = relatorio+ indGeracao+","+fitnessTotal+","+(fitnessTotal/geracao.size())+","+geracao.get(geracao.size()-1).fitness+","+geracao.get(0).fitness+"\n";
-        
+        if(!convergiu) relatorio = relatorio+"NAO CONVERGIU";
         imprimirRelatorio(relatorio);
     }
     
