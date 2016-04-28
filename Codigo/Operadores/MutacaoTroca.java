@@ -1,15 +1,4 @@
 package Operadores;
-
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
-/**
- *
- * @author sousa
- */
 public class MutacaoTroca extends Mutacao{
     
     public MutacaoTroca()
@@ -22,6 +11,13 @@ public class MutacaoTroca extends Mutacao{
         return "1";
     }
 
+    
+    /*-----------------|
+    Operador de mutacao 2: Mutacao Troca
+    Recebe o cromossomo de um individuo
+    Escolhe uma posicao m1 e outra m2 e troca o conteudo das mesmas no cromossomo
+    Retorna o cromossomo mutado
+    |-----------------*/
     @Override
     public int[] executar(int[] mutante) {
 
