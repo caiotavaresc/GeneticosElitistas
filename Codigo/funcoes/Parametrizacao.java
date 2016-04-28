@@ -9,7 +9,7 @@ import java.util.ArrayList;
 public class Parametrizacao {
 	public static void main(String[] args){
 		
-		String nomeDaFuncao = "Gold1";
+		String nomeDaFuncao = "Bump2";
 		
 		/*Dicionario de Parametros
 	     * 0 -> Num de cromossomos por genotipo
@@ -24,15 +24,15 @@ public class Parametrizacao {
 	     * 9 -> Criterio de Troca de Populacao - 0 [com troca] 1 [sem troca]
 	     * 10 -> Elitismo - 0 [nÃ£o] 1 [sim]*/
 		
-		String[] param0 = {"20", "50", "80"};
-		String[] param1 = {"50", "200", "1000"};
+		String[] param0 = {"20", "40", "60"};
+		String[] param1 = {"200", "500", "1000", "5000"};
 		String[] param2 = {"0", "1"};
-		String[] param3 = {"50", "100"};//SOH SE O DE CIMA FOR 1
+		String[] param3 = {"100"};//SOH SE O DE CIMA FOR 1
 		String[] param4 = {"0.75", "1", "1.5"}; //MULTIPLICA PARAM 1
 		String[] param5 = {"0", "1"};
 		String[] param6 = {"0.5", "0.7", "0.9", "1"};
 		String[] param7 = {"0", "1"};
-		String[] param8 = {"0.001", "0.005", "0.01", "0.025", "0.05"};
+		String[] param8 = {"0.005", "0.01", "0.025", "0.05"};
 		String[] param9 = {"0", "1"};
 		String[] param10 = {"false", "true"};
                 String param11 = "5";
@@ -74,11 +74,13 @@ public class Parametrizacao {
 		
 		//Comando que eh executado no prompt
 		//String [] cmd = {"java funcoes." + nomeDaFuncao + " " + param0 + " " + param1 + " " + param2 + " " + param3 + " " + param4 + " " + param5 + " " + param6 + " " + param7 + " " + param8 + " " + param9 + " " + param10 + " " + param11};
-		int execucao = 0;
-                for(execucao = 6480; execucao< comandos.size(); execucao++)
+		System.out.println(comandos.size());
+                int execucao = 0;
+                for(execucao = 3745; execucao< 3770; execucao++)
                     try{
-                        System.out.println("EXECUCAO "+ execucao+"\n"+comandos.get(execucao));
-                    	run (comandos.get(execucao), Diretorio); //Chama a classe que realiza efetivamente o comando
+                        String cmd = comandos.get(execucao);
+                        System.out.println("EXECUCAO "+ execucao+"\n"+cmd);
+                    	run (cmd, Diretorio); //Chama a classe que realiza efetivamente o comando
                     }catch(Exception e){
                     	e.printStackTrace();
                     }		

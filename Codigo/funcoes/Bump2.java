@@ -1,8 +1,4 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package funcoes;
 
 import Operadores.CrossoverDoisPontos;
@@ -11,10 +7,6 @@ import Operadores.MutacaoSimples;
 import Operadores.MutacaoTroca;
 import algoritmosGeneticos.Utils;
 
-/**
- *
- * @author sousa
- */
 public class Bump2 extends algoritmosGeneticos.AlgoritmosGeneticos{
 
     public double fitness(int [] gen) {
@@ -43,22 +35,6 @@ public class Bump2 extends algoritmosGeneticos.AlgoritmosGeneticos{
     public static void main(String[] args) {
 		
 		Bump2 bmp = new Bump2();
-		
-		/*Passar os parametros
-                args = new String[12];
-                args[0] = "50";
-                args[1] = "20000";
-                args[2] = "0";
-                args[3] = "100";
-                args[4] = "20000";
-                args[5] = "0";
-                args[6] = "0.9";
-                args[7] = "0";
-                args[8] = "0.05";
-                args[9] = "0";
-                args[10] = "0";
-                args[11] = "5";*/
-                      
 		bmp.numGenes = Integer.valueOf(args[0]);
 		bmp.numIndividuos = Integer.valueOf(args[1]);
 		bmp.critParada = Integer.valueOf(args[2]);
@@ -81,7 +57,5 @@ public class Bump2 extends algoritmosGeneticos.AlgoritmosGeneticos{
 		
 		//Mandar evoluir
 		bmp.evolucao();
-	}
-    
-    
+	}   
 }

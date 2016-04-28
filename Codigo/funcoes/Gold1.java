@@ -52,21 +52,6 @@ public class Gold1 extends algoritmosGeneticos.AlgoritmosGeneticos{
 	public static void main(String[] args) {
 		
 		Gold1 gold = new Gold1();
-		
-		//Passar os parametros
-                /*args = new String[12];
-                args[0] = "50";
-                args[1] = "200";
-                args[2] = "0";
-                args[3] = "100";
-                args[4] = "0.75";
-                args[5] = "0";
-                args[6] = "0.9";
-                args[7] = "0";
-                args[8] = "0.05";
-                args[9] = "0";
-                args[10] = "0";
-                args[11] = "5";*/
                       
 		gold.numGenes = Integer.valueOf(args[0]);
 		gold.numIndividuos = Integer.valueOf(args[1]);

@@ -52,21 +52,6 @@ public class Rastrigin extends algoritmosGeneticos.AlgoritmosGeneticos{
 	public static void main(String[] args) {
 		
 		Rastrigin rastr = new Rastrigin();
-                /*args = new String[12];
-                args[0] = "333";
-                args[1] = "1000";
-                args[2] = "1";
-                args[3] = "5";
-                args[4] = "1000";
-                args[5] = "0";
-                args[6] = "0.9";
-                args[7] = "0";
-                args[8] = "0.05";
-                args[9] = "0";
-                args[10] = "0";
-                args[11] = "5";*/
-                
-                
 		
 		//Passar os parametros
 		rastr.numGenes = Integer.valueOf(args[0]);
