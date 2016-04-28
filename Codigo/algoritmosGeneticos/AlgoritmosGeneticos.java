@@ -13,21 +13,11 @@ import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 
-/**
- *
- * @author sousa
- */
 public abstract class AlgoritmosGeneticos {
     /*-----------------| Espaco dos Atributos |-----------------*/
     //geracao -> Lista de elementos da geracao atual da populacao
-    //Cada elemento devera¡ mapear o valor x e o valor y do ponto em binario
-    //Cada funcao fitness tera seu proprio modelo de individuo, portanto eles serao mapeados nas classes filhas
+    //Cada elemento devera mapear o valor x e o valor y do ponto em binario
     List<Individuo> geracao;
     List<Individuo> geracaoRoleta;
     //indGeracao -> Indicador da geracao em que a populacao esta
@@ -93,22 +83,30 @@ public abstract class AlgoritmosGeneticos {
         this.rand = new Random();
     }
     
-    //Fitness e abstrato porque cada filho definira¡ o seu fitness
-    //Recebera¡ como entrada um fenotipo e devolvera¡ uma avaliacao
-    //O fenotipo de todas as funcoes e um ponto no plano
+    
+    /*-----------------|
+    Fitness e abstrato porque cada filho definira o seu fitness
+    Recebera como entrada um genotipo e devolvera uma avaliacao
+    O genotipo eh convertido em fenotipo dentro do metodo
+    |-----------------*/
     protected abstract double fitness(int[] genotipo);
     
-    //Calcula o fitness total da populacao
+    /*-----------------|
+    Calcula o fitness de toda a populacao
+    |-----------------*/
     double fitnessTotal() {
         double total = 0;
+        //Percorre todos os individuos da populacao
         for (Individuo ind : geracao) {
-            total += ind.fitness;
+            total += ind.fitness; //Acrescenta a total o fitness do individuo vigente
         }
-        return total;
+        return total; //Retorna o total de fitness
     }
     
-    //geradorInicial -> Cria a primeira geracao - Supoe que o alfabeto e {0,1}
-    //Recebe como parametro o numero de individuos que serao criados na geracao
+    /*-----------------|
+    geradorInicial -> Cria a primeira geracao baseado nos parametros
+    Supoe que o alfabeto e {0,1}
+    |-----------------*/
     void geradorInicial() {
         //1) Criar a primeira geracao
         this.geracao = new ArrayList(this.numIndividuos);
@@ -117,69 +115,74 @@ public abstract class AlgoritmosGeneticos {
         for (int i = 0; i < this.numIndividuos; i++) {
             //Iterar por cada gene do cromossomo dando um valor aleatorio
             int[] gen_ind_atual = new int[numGenes];
-
             for (int j = 0; j < gen_ind_atual.length; j++) {
                 gen_ind_atual[j] = rand.nextInt(2);
             }
+            //Cria um individuo com aquele cromossomo e adiciona na geracao
             geracao.add(new Individuo(gen_ind_atual, fitness(gen_ind_atual)));
         }
     }
     
-    
-    //Adapta a geracao para que os fitness negativos nao impecam o funcionamento da roleta
+    /*-----------------|
+    Cria uma copia da geracao atual adaptando o fitness dos individuos de forma que
+    todos os valores sejam positivos e garantam o funcionamento da roleta
+    |-----------------*/
     void criaGeracaoRoleta()
     {
-        geracaoRoleta = new ArrayList<Individuo>();
-        double shift = 0;
-        fitnessTotalRoleta = 0;
-        if(tipoFun == MINIMIZACAO)
+        geracaoRoleta = new ArrayList<Individuo>(); //Geracao adaptada
+        double shift = 0; //O shift e para garantir que nenhum valor seja negativo
+        fitnessTotalRoleta = 0; //Fitness total adaptado
+        if(tipoFun == MINIMIZACAO)//Caso a funcao seja de minizacao
         {   
+            //Se o maior valor for positivo, como ele virara negativo ao multiplicar por -1, ele sera o shift
             if(geracao.get(geracao.size()-1).fitness > 0)
                 shift = geracao.get(geracao.size()-1).fitness +1;
-            for(Individuo ind : geracao)
+            
+            for(Individuo ind : geracao)//Para cada individuo da geracao
             {
                 //Invertendo os fitness de todos os individuos
-                double novoFitness = shift+ind.fitness*-1;
-                geracaoRoleta.add(new Individuo(ind.getGenotipo(), novoFitness));
-                fitnessTotalRoleta += novoFitness;
+                double novoFitness = shift+ind.fitness*-1; //Multiplicar o fitness por -1 e adicionar o shift
+                geracaoRoleta.add(new Individuo(ind.getGenotipo(), novoFitness)); //Adicionar a geracaoRoleta o adaptado
+                fitnessTotalRoleta += novoFitness;//Calculando o fitness total adaptado
             }
         }
-        else
+        else //Se for maximizacao
         {
-            if(geracao.get(0).fitness < 0) 
-                shift = geracao.get(0).fitness*-1 +1;
-            for(Individuo ind : geracao)
-            {
-                
-                double novoFitness = shift+ind.fitness;
-                geracaoRoleta.add(new Individuo(ind.getGenotipo(), novoFitness));
-                fitnessTotalRoleta += novoFitness;
+            if(geracao.get(0).fitness < 0) //Se o menor valor for negativo
+                shift = geracao.get(0).fitness*-1 +1; //O shift deve ser esse valor (positivo) e somar a 1
+            for(Individuo ind : geracao) //Percorre a geracao
+            {    
+                double novoFitness = shift+ind.fitness; //Da o shift no fitness adaptado
+                geracaoRoleta.add(new Individuo(ind.getGenotipo(), novoFitness)); //Adiciona a geracao adaptada
+                fitnessTotalRoleta += novoFitness; // Calcula o novo fitness
             }
         }
-        if(fitnessTotalRoleta == 0) fitnessTotalRoleta =1;
-        Collections.shuffle(geracaoRoleta);
+        if(fitnessTotalRoleta == 0) fitnessTotalRoleta =1; //Para nao acontecer divisao por 0
+        Collections.shuffle(geracaoRoleta); //Desordena a geracao roleta para aumentar a aletoriedade
     }
     
-    //Metodo de selecao 1 -> giro de roleta
-    //Sorteia dois  numeros i,j no intervalo [0, fitness total da populacao]
-    //Escolhe os dois individuos no qual o i e j esta em seu intervalo/fatia
-    //Retorna um vetor de duas posicoes, cada uma delas com o indice de um dos individuos escolhidos
+    
+    /*-----------------|
+    Metodo de selecao: Roleta
+    Sorteia dois  numeros i,j no intervalo [0, 100]
+    Escolhe os dois individuos no qual o i e j esta em seu intervalo/fatia
+    Retorna um vetor de duas posicoes, cada uma delas com um dos individuos escolhidos
+    |-----------------*/
     Individuo[] roleta() {
 
         double g1 = (rand.nextDouble());//Numero da roleta para primeira escolha
         Individuo ind1 = null,ind2 = null;
         int escolhido = 0;
-        
        
-        for (int j = 0; g1 > 0; j++) {
+        for (int j = 0; g1 > 0; j++) {//Enquanto o numero for maior que 0, se ele for menor ou igual, para pois esse eh o individuo escolhido
             ind1 = geracaoRoleta.get(j);
             double x =(ind1.fitness) / this.fitnessTotalRoleta; 
-            g1 -= x;
+            g1 -= x;//Desconta a % que o fitness do individuo representa
             escolhido = j;
         }
 
+        //Faz a mesma coisa para escolher o segundo individuo
         int escolhido2 = 0;
-        //int repeticoes = 0;
         do {
             g1 = (rand.nextDouble()); //Numero da roleta para segunda escolha
             for (int j = 0; g1 > 0 && j < geracao.size(); j++) {
@@ -188,34 +191,19 @@ public abstract class AlgoritmosGeneticos {
                 g1 -= x;
                 escolhido2 = j;
             }
-            //repeticoes++;
         } while (escolhido2 == escolhido);//Para garantir que nao escolhemos dois iguais
-        //OLHAMOS ISSO -> RELATORIO
-        //System.out.println("ROLETA: " + repeticoes + " PAI1 " + fitness(geracaoRoleta.get(escolhido).getGenotipo()) + " PAI2 "+ fitness(geracaoRoleta.get(escolhido2).getGenotipo()));
         return new Individuo[]{ind1, ind2};
     }
     
-    //Fitness total adaptado para nao causar problemas ao operador roleta
-    double fitnessTotalRoleta(int fator, double shift) {
-        double total = 0;
-        if (shift < 0) {
-            shift = -1*shift;
-            for (Individuo ind : geracao) {
-                double x = fator * ind.fitness + shift+1;
-                total += x;
-            }
-        } else {
-            return fitnessTotal();
-        }
-        return total;
-    }
-    
-    //Teste de convergencia - Verifica se todos os individuos tem o mesmo fitness
+    /*-----------------|
+    Criterio de parada: Convergiu
+    Verifica se todos os individuos da geracao tem o mesmo fitness
+    |-----------------*/
     boolean convergiu() {
         double firstFitness;
         firstFitness = this.geracao.get(0).fitness;
 
-        //Se achou alguem com fitness igual ao do primeiro, retorna false
+        //Se achou alguem com fitness diferente ao do primeiro, retorna false
         int i=0;
         for (i = 1; i < this.geracao.size(); i++) {
  
@@ -227,19 +215,22 @@ public abstract class AlgoritmosGeneticos {
         return true;
     }
     
-    //Operador de troca de populacao Melhores dentre os filhos
-    //Esse operador esta funcionando para problemas de maximizacao -> Deve ser adaptado para minimizacao
+    /*-----------------|
+    Troca dos individuos
+    Recebe a lista de filhos e retorna uma sublista dessa com os filhos melhores avaliados
+    |-----------------*/
     List<Individuo> melhoresFilhos(List<Individuo> proxFilhos) {
-        List<Individuo> melhoresFilhos;
-        Collections.sort(proxFilhos);
-        if(tipoFun == MAXIMIZACAO)
-            if(proxFilhos.size() < numIndividuos){
-                melhoresFilhos = proxFilhos;
+        List<Individuo> melhoresFilhos;//Cria a lista de melhores filhos
+        Collections.sort(proxFilhos); //Ordena o vetor de filhos (parametro)
+        if(tipoFun == MAXIMIZACAO)//Se for maximizacao
+            if(proxFilhos.size() < numIndividuos){ //Se o numero de filhos nao suprir o numero de individuos por geracao parametrizado
+                melhoresFilhos = proxFilhos; //Os "melhores filhos" serao todos os filhos gerados
                 melhoresFilhos.addAll(geracao.subList(geracao.size() - (numIndividuos - proxFilhos.size()), geracao.size()));
+                //Completados pelos melhores da geracao pai
             }
-            else
+            else //Caso o numero de filhos seja maior ou igual ao parametrizado: Escolhe os numIndividuos(inteiro dado como parametro) melhores filhos
                 melhoresFilhos = proxFilhos.subList(proxFilhos.size()-numIndividuos, proxFilhos.size());
-        else{
+        else{ // Caso seja minizacao, eh analogo a maximizacao, mas escolhe os filhos com os menores valores
             if(proxFilhos.size() < numIndividuos){
                 melhoresFilhos = proxFilhos;
                 melhoresFilhos.addAll(geracao.subList(0, numIndividuos - proxFilhos.size()+1));
@@ -251,32 +242,16 @@ public abstract class AlgoritmosGeneticos {
         return melhoresFilhos;
     }
     
-    //Metodo que retorna o individuo mais bem adaptado da geracao atual
+    /*-----------------|
+    Metodo que retorna o individuo mais bem adaptado (com melhor fitness) da geracao atual
+    |-----------------*/
     Individuo getBetter() {
-        int[] maximo, minimo;
-        double maxFitness, minFitness;
-
-        maxFitness = minFitness = this.geracao.get(0).fitness;
-        maximo = minimo = this.geracao.get(0).getGenotipo();
-
-        for (int i = 1; i < this.numIndividuos; i++) {
-            if (this.geracao.get(i).fitness > maxFitness) {
-                maxFitness = this.geracao.get(i).fitness;
-                maximo = this.geracao.get(i).getGenotipo();
-            }
-
-            if (this.geracao.get(i).fitness < minFitness) {
-                minFitness = this.geracao.get(i).fitness;
-                minimo = this.geracao.get(i).getGenotipo();
-            }
-        }
-
         //Se o problema for de maximizacao, retorno o maximo
         //Se o problema for de minimizacao, retorno o minimo
         if (this.tipoFun == MINIMIZACAO) {
-            return new Individuo(minimo, minFitness);
+            return geracao.get(0);
         } else {
-            return new Individuo(maximo, maxFitness);
+            return geracao.get(geracao.size()-1);
         }
     }
     
