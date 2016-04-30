@@ -1,6 +1,5 @@
 package Operadores;
 
-
 import java.util.Random;
 public abstract class Mutacao {
     Random rand;

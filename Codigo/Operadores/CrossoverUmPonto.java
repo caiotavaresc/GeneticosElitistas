@@ -12,8 +12,7 @@ public class CrossoverUmPonto extends Crossover {
     {
         return "0";
     }
-    
-    
+
     /*-----------------|
     Operador de cruzamento 1: Cruzamento de um ponto
     Recebe dois individuos a e b da população
