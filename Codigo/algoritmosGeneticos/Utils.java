@@ -1,12 +1,16 @@
-package algoritmosGeneticos;
+package algoritmoGenetico;
 
-//A classe Utils implementara funcoes diversas (principalmente de manipulacao de binarios)
-//que nao fazem parte do escopo do problema mas sao necessarias para tal
+/*-----------------|Classe Utils|-----------------/
+Essa classe implementa funcao que lida com os binarios
+/-----------------|            |-----------------*/
+
 public class Utils {
-
-	//binarioPraDecimal -> Recebe como entrada um array de int que representa um ponto no plano e retorna o ponto
-	//Essa e a funcao de mapeamento que mapeiao genotipo em fenotipo
-	//entrada e o genoma, min e max sao as definicoes do intervalo (dependentes da funcao).
+        /*-----------------|
+        Esse metodo traduz o genotipo em fenotipo, ou seja, recebe um vetor binario e retorna o x e o y
+        Conforme os textos binario_real page 1 e binario_real page 2 disponibilizado pela professora Sara.
+        Os parametros desse metodo sao o vetor binario, o min e o max das funcoes
+        O retorno eh um vetor com x na posicao 0 e y na posicao 1
+        |-----------------*/
 	public static double[] binarioPraDecimal(int[] entrada, int min, int max)
 	{
             double x = 0, y = 0;

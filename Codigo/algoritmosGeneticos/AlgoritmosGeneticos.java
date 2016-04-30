@@ -1,4 +1,4 @@
-package algoritmosGeneticos;
+package algoritmoGenetico;
 
 
 import Operadores.Crossover;
@@ -13,7 +13,7 @@ import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-
+/*-----------------| Classe abstrata das funcoes |-----------------*/
 public abstract class AlgoritmosGeneticos {
     /*-----------------| Espaco dos Atributos |-----------------*/
     //geracao -> Lista de elementos da geracao atual da populacao
@@ -92,7 +92,7 @@ public abstract class AlgoritmosGeneticos {
     protected abstract double fitness(int[] genotipo);
     
     /*-----------------|
-    Calcula o fitness de toda a populacao
+    Calcula o fitness total de toda a populacao
     |-----------------*/
     double fitnessTotal() {
         double total = 0;
@@ -255,43 +255,52 @@ public abstract class AlgoritmosGeneticos {
         }
     }
     
-    //Metodo Evolucao: Evoluira o algoritmo guiado pelos parametros
+    
+    /*-----------------|
+    Esse metodo executa a evolucao baseado nos parametros fornecidos
+    |-----------------*/
     protected void evolucao() {
-        boolean convergiu = true;
-        String relatorio ="";
+        
+        boolean convergiu = true; //Boolean para controle de convergencia
+        String relatorio =""; //String a ser guardada em arquivo com o relatorio conforme especificado
+        //Parametros da execucao
         relatorio = relatorio + "numGenes,numIndividuos,critParada,numGeracoes,numCross,tipoCrossover,probCrossover,tipoMutacao,probMutacao,critTroca,elitismo\n";
-        //System.out.println("numGenes\tnumIndividuos\tcritParada\tnumGeracoes\tnumCross\ttipoCrossover\tprobCrossover\ttipoMutacao\tprobMutacao\tcritTroca\telitismo\n"
-        //        +numGenes+"\t"+numIndividuos+"\t"+critParada+"\t"+numGeracoes+"\t"+numCross+"\t"+crossover+"\t"
-        //        +probCrossover+"\t"+mutacao+"\t"+probMutacao+"\t"+critTroca+"\t"+elitismo+"\n");
+        
+        //Impressao dos parametros da execucao
+        System.out.println("numGenes\tnumIndividuos\tcritParada\tnumGeracoes\tnumCross\ttipoCrossover\tprobCrossover\ttipoMutacao\tprobMutacao\tcritTroca\telitismo\n"
+                +numGenes+"\t"+numIndividuos+"\t"+critParada+"\t"+numGeracoes+"\t"+numCross+"\t"+crossover+"\t"
+                +probCrossover+"\t"+mutacao+"\t"+probMutacao+"\t"+critTroca+"\t"+elitismo+"\n");
         relatorio = relatorio + ((this instanceof funcoes.Gold1)? "Gold-," : (this instanceof funcoes.Bump2)? "Bump2,": (this instanceof funcoes.Gold2)? "Gold+,": "Rastrigin")+",";
         relatorio = relatorio+numGenes+","+numIndividuos+","+critParada+","+numGeracoes+","+numCross+","+crossover+","
                 +probCrossover+","+mutacao+","+probMutacao+","+critTroca+","+elitismo+"\n\n";
         
+        //Colunas disponiveis no relatorio e na impressao -> Numero da geracao, fitness total da populacao, fitness medio, fitness maximo, fitness minimo
         relatorio = relatorio + "numGeracao,fitness da populacao: total,medio,maximo,minimo\n";
+        System.out.println("numGeracao\tfitness da populacao: total\tmedio\tmaximo\tminimo");
         
-        //System.out.println("numGeracao\tfitness da populacao: total\tmedio\tmaximo\tminimo");
-        //Variaveis auxiliares
-        List<Individuo> proxFilhos;
-        proxFilhos = new ArrayList();
+        List<Individuo> proxFilhos = new ArrayList(); //Lista para guardar os proximos filhos
 
-        this.geradorInicial();
-        this.indGeracao = 1;
-
-        //Imprimir a primeira geracao
-        //this.imprimeGeracao();
+        this.geradorInicial(); //Gerar primeira populacao
+        this.indGeracao = 1; //Numero da geracao
 
         // Iniciar a Evolucao
-        // A Evolucao será um while true, cujo criterio de parada definira o break
+        // A Evolucao será um while true, cujo criterio de parada definira quando sair do laco
         while (true) {
-            Collections.sort(geracao);
-            criaGeracaoRoleta();
-            //Armazenar o fitness total para evitar recalculo
-            this.fitnessTotal = this.fitnessTotal();
+            //Ordena, em ordem crescente de fitness, os individuos
+            Collections.sort(geracao); 
             
+            //Cria a copia adaptada da geracao que servira para a roleta
+            criaGeracaoRoleta(); 
+            
+            //Armazenar o fitness total para evitar recalculo
+            this.fitnessTotal = this.fitnessTotal(); 
+            
+            //Guarda no relatorio as informacoes da geracao atual/Imprime no console caso seja uma das impressoes que deva ir (baseado no parametro)
             relatorio = relatorio+ indGeracao+","+fitnessTotal+","+(fitnessTotal/geracao.size())+","+geracao.get(geracao.size()-1).fitness+","+geracao.get(0).fitness+"\n";
-           // if(indGeracao%intervaloImpressao==1) System.out.println(indGeracao+"\t"+fitnessTotal+"\t"+(fitnessTotal/geracao.size())+"\t"+geracao.get(geracao.size()-1).fitness+"\t"+geracao.get(0).fitness);
+            if(indGeracao%intervaloImpressao==1) System.out.println(indGeracao+"\t"+fitnessTotal+"\t"+(fitnessTotal/geracao.size())+"\t"+geracao.get(geracao.size()-1).fitness+"\t"+geracao.get(0).fitness);
+            
             //A evolucao consiste em:
-            //0) Ocorrerão n CrossOvers
+            //0) Geracao de crossovers e mutacoes: m (numCross) tentativas
             for (int contCross = 0; contCross < this.numCross; contCross++) {
 
                 //1) Dada um probabilidade de ocorrer o crossOver
@@ -301,6 +310,7 @@ public abstract class AlgoritmosGeneticos {
                     //b) Efetuar o cruzamento e gerar os filhos
                     int[][] filhos = crossover.executar(pais[0].getGenotipo(), pais[1].getGenotipo());
                     
+                    //c) Adicionar os filhos a lista
                     proxFilhos.add(new Individuo(filhos[0], fitness(filhos[0])));
                     proxFilhos.add(new Individuo(filhos[1], fitness(filhos[1])));
                 }
@@ -309,9 +319,12 @@ public abstract class AlgoritmosGeneticos {
             //2) Dada uma probabilidade de ocorrer a mutacao
             if (this.rand.nextDouble() <= this.probMutacao && proxFilhos.size() > 0) {
                
+                //Sortear um filho a ser mutado
                 int indice = rand.nextInt(proxFilhos.size());
                 //Efetuar a mutacao
                 int[] mutante = mutacao.executar(proxFilhos.get(indice).getGenotipo());
+                
+                //Adicionar o filho mutado em seu lugar de origem
                 proxFilhos.remove(indice);
                 proxFilhos.add(indice, new Individuo(mutante, fitness(mutante)));
                 
@@ -319,29 +332,27 @@ public abstract class AlgoritmosGeneticos {
 
             //3) Selecionar os melhores filhos para compor a proxima geracao
             //Aplicar o criterio de troca de populacao
+            
+            //Caso nao seja por substituicao, a geracao atual e acrescida aos possiveis integrantes da proxima
             if (this.critTroca == SEM_SUBST) {
-                proxFilhos.addAll(this.geracao);
+                proxFilhos.addAll(this.geracao); 
             } else //Se for aplicada troca com substituicao de populacao, verificar se vai ser aplicado elitismo
              if (this.elitismo) {
                     proxFilhos.add(this.getBetter());
                 }
+            
             //Nota: por uma questao simples, nao se aplica elitismo quando nao ha substituicao de populacao
             List<Individuo> copiaFilhos = new ArrayList<Individuo>();
             copiaFilhos.addAll(proxFilhos);
+            
+            //Seleciona os melhores para comporem a proxima geracao
             this.geracao = this.melhoresFilhos(copiaFilhos);
 
             
             //Incrementar a geracao
             this.indGeracao++;
-            if(indGeracao==10000)
-            {
-                convergiu = false;
-                System.out.println("NAO CONVERGIU");
-                break;
-            }
             
-            //A cada iteracao imprimir a geracao
-            //this.imprimeGeracao();
+            //Ordenando a geracao nova
             Collections.sort(geracao);
             
             //4) Parar a evolucao quando for a hora certa
@@ -349,6 +360,12 @@ public abstract class AlgoritmosGeneticos {
                 //Teste de convergencia - Se a geracao convergiu, paramos a evolucao
                 if (this.convergiu()) {
                     break;
+                } else if(indGeracao == 10000) //Se alcancar a 10000o. geracao, parar evolucao
+                {
+                    convergiu = false;
+                    System.out.println("NAO CONVERGIU");
+                    break;
+                    
                 }
             } else if (this.critParada == NUM_GERACOES) {
                 //Se a geracao atual corresponder ao numero estabelecido, paramos a evolucao
@@ -356,21 +373,29 @@ public abstract class AlgoritmosGeneticos {
                     break;
                 }
             }
+            
 
             //Limpar os objetos utilizados
             proxFilhos.clear();
         }
-        //System.out.println(indGeracao+"\t"+fitnessTotal+"\t"+(fitnessTotal/geracao.size())+"\t"+geracao.get(geracao.size()-1).fitness+"\t"+geracao.get(0).fitness);
+        //Imprimir as informacoes da ultima geracao/Guardar no relatorio
+        System.out.println(indGeracao+"\t"+fitnessTotal+"\t"+(fitnessTotal/geracao.size())+"\t"+geracao.get(geracao.size()-1).fitness+"\t"+geracao.get(0).fitness);
         relatorio = relatorio+ indGeracao+","+fitnessTotal+","+(fitnessTotal/geracao.size())+","+geracao.get(geracao.size()-1).fitness+","+geracao.get(0).fitness+"\n";
+        //Se nao convergiu, guardar no relatorio
         if(!convergiu) relatorio = relatorio+"NAO CONVERGIU";
+        
+        //Gerar o arquivo com o relatorio
         imprimirRelatorio(relatorio);
     }
     
     
+    /*-----------------|
+    Gera um arquivo .csv com o relatorio
+    |-----------------*/
     public void imprimirRelatorio(String r)
     {
-        String nome="";
-        
+        String nome;
+        //Nome da funcao que esta sendo rodada
         if( this instanceof funcoes.Gold1)
             nome = "Gold-";
         else if (this instanceof funcoes.Rastrigin)
@@ -379,7 +404,8 @@ public abstract class AlgoritmosGeneticos {
             nome = "Bump2";
         else
             nome = "Gold+";
-           
+        
+        //Cria o arquivo
         try {
             BufferedWriter w = new BufferedWriter(new FileWriter(nome+","+numGenes+","+numIndividuos+","+critParada+","+numGeracoes+","+numCross+","+crossover+","
                     +probCrossover+","+mutacao+","+probMutacao+","+critTroca+","+elitismo+".csv"));
