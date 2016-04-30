@@ -3,23 +3,26 @@ import Operadores.CrossoverDoisPontos;
 import Operadores.CrossoverUmPonto;
 import Operadores.MutacaoSimples;
 import Operadores.MutacaoTroca;
-import algoritmosGeneticos.Utils;
+import algoritmoGenetico.Utils;
 
-//Classe RASTRIGIN -> Mapeia o algoritmo gen�tico para a fun��o Rastrigin
-//Objetivo: Maximiza��o
-public class Rastrigin extends algoritmosGeneticos.AlgoritmosGeneticos{
+/*-----------------|
+Classe Rastrigin -> Mapeia o algoritmo genético para a função Rastrigin
+Objetivo: Maximizacao
+|-----------------*/
+public class Rastrigin extends algoritmoGenetico.AlgoritmosGeneticos{
 
-	//M�todo construtor -> Chama o construtor da classe pai
 	Rastrigin() 
 	{
 		super();
 	}
 	
-	//M�todo fitness -> Fun��o de avalia��o
-	//O fen�tipo de todas as fun��es � um ponto no plano
+        /*-----------------|
+        Recebe como parametro o genotipo e retorna o valor da funcao Rastrigin para esses valores
+        |-----------------*/
 	protected double fitness(int[] gen)
 	{
 		double zx, zy, z, x, y;
+                //Obtendo o fenotipo
                 double[] xy = Utils.binarioPraDecimal(gen, min, max);
 		//Atribuir valores
 		x = xy[0];
@@ -35,7 +38,6 @@ public class Rastrigin extends algoritmosGeneticos.AlgoritmosGeneticos{
 		return z;
 	}
 	
-    //Metodo main: Executa a evolucao -- Ocorre por subclasse
     
     /*Parametros
      * 0 -> Num de cromossomos por genotipo

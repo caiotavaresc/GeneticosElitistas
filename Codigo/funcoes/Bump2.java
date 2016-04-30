@@ -5,13 +5,18 @@ import Operadores.CrossoverDoisPontos;
 import Operadores.CrossoverUmPonto;
 import Operadores.MutacaoSimples;
 import Operadores.MutacaoTroca;
-import algoritmosGeneticos.Utils;
+import algoritmoGenetico.Utils;
 
-public class Bump2 extends algoritmosGeneticos.AlgoritmosGeneticos{
+public class Bump2 extends algoritmoGenetico.AlgoritmosGeneticos{
 
+    /*-----------------|
+    Recebe como parametro o genotipo e retorna o fitness desse individuo
+    |-----------------*/
     public double fitness(int [] gen) {
         
         double x, y, z, temp0, temp1, temp2;
+        
+        //Obtendo o fenotipo
         double xy[] = Utils.binarioPraDecimal(gen, min, max);
         x = xy[0];
         y = xy[1];
@@ -35,6 +40,8 @@ public class Bump2 extends algoritmosGeneticos.AlgoritmosGeneticos{
     public static void main(String[] args) {
 		
 		Bump2 bmp = new Bump2();
+                
+                //Preencher os parametros
 		bmp.numGenes = Integer.valueOf(args[0]);
 		bmp.numIndividuos = Integer.valueOf(args[1]);
 		bmp.critParada = Integer.valueOf(args[2]);

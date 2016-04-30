@@ -3,25 +3,25 @@ import Operadores.CrossoverDoisPontos;
 import Operadores.CrossoverUmPonto;
 import Operadores.MutacaoSimples;
 import Operadores.MutacaoTroca;
-import algoritmosGeneticos.Utils;
+import algoritmoGenetico.Utils;
 
-//Classe GOLD -> Mapeia o algoritmo genético para a função Gold
+/*-----------------|
+//Classe Gold1 (-z) -> Mapeia o algoritmo genético para a função Gold
 //Objetivo: Minimização
-public class Gold1 extends algoritmosGeneticos.AlgoritmosGeneticos{
-
-	//Método construtor -> Chama o construtor da classe pai
+|-----------------*/
+public class Gold1 extends algoritmoGenetico.AlgoritmosGeneticos{
 	Gold1() 
 	{
 		super();
 	}
-	
-	//Método fitness -> Função de avaliação
-	//O fenótipo de todas as funções é um ponto no plano
-	//Na função GOLD temos que mapear os domínios positivo e negativo. A função resultará apenas no domínio positivo
-	//O domínio negativo (-z) deve ser tratado no código
+
+        /*-----------------|
+        Recebe como parametro o genotipo e retorna o fitness para esse individuo
+        |-----------------*/
 	protected double fitness(int[] gen)
 	{
 		double a, b, z, x, y;
+                //Obtem o fenotipo
                 double[] d = Utils.binarioPraDecimal(gen, min, max);
 		//Atribuir valores
 		x = d[0];
